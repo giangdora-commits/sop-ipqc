@@ -1,0 +1,333 @@
+
+<html lang="vi"><head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>SỔ TAY IPQC PRESTIGE</title>
+    
+    <script src="xlsx.full.min.js"></script>
+    
+    <link rel="stylesheet" href="fonts/roboto.css">
+
+    <style>
+        :root {
+            --bg-deep: #05080a;
+            --gold-lux: #d4af37;
+            --glass-card: #ffffff;
+            --shadow-3d: 0 15px 40px rgba(0,0,0,0.6);
+        }
+
+        /* RESET CHỐNG LỆCH VIỀN MOBILE & QUIRKS MODE */
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; margin: 0; padding: 0; } 
+        
+        body { 
+            font-family: 'Roboto', sans-serif;
+            background: var(--bg-deep); height: 100dvh; display: flex; justify-content: center; 
+            overflow: hidden; width: 100vw;
+            background-image: radial-gradient(circle at 50% 0%, #1a2a44, #05080a);
+        }
+
+        /* KHUNG 9:16 - ĐẢM BẢO VIỀN VÀNG KHÔNG BỊ MẤT TRÊN MOBILE */
+        #app { 
+            width: 100%; max-width: 100vw; height: 100dvh;
+            display: flex; flex-direction: column; position: relative; 
+            border: 2px solid var(--gold-lux); overflow: hidden;
+            background: rgba(0,0,0,0.2);
+        }
+
+        @media (min-width: 460px) { 
+            #app { width: 400px; height: 92vh; border-radius: 40px; margin-top: 4vh; border: 3px solid var(--gold-lux); } 
+        }
+
+        header { 
+            padding: 22px 20px; 
+            background: linear-gradient(180deg, #2c3e50 0%, #000000 100%);
+            border-bottom: 2px solid var(--gold-lux);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.9), inset 0 0 15px rgba(212,175,55,0.3);
+            display: flex; justify-content: space-between; align-items: center;
+            z-index: 10;
+        }
+
+        .ttl-group { display: flex; flex-direction: column; }
+        .ttl { font-size: 17px; font-weight: 900; color: #fff; letter-spacing: 1px; text-shadow: 0 0 10px rgba(212,175,55,0.5); font-family: 'Roboto', sans-serif; }
+        .brand { font-size: 8px; color: var(--gold-lux); font-weight: 500; margin-top: 5px; letter-spacing: 1px; }
+
+        #mi { 
+            width: 40px; height: 40px; background: rgba(255,255,255,0.05); border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 16px; cursor: pointer; color: var(--gold-lux); border: 1.5px solid var(--gold-lux);
+        }
+
+        .sa { padding: 12px 15px; }
+        #ss { 
+            width: 100%; padding: 14px 20px; border-radius: 12px; border: 1px solid rgba(212,175,55,0.4); 
+            outline: none; background: rgba(255,255,255,0.05); font-size: 13px; color: #fff;
+            font-family: 'Roboto', sans-serif;
+        }
+
+        #dl { flex: 1; overflow-y: auto; padding: 10px 15px; }
+        
+        .dc { 
+            background: var(--glass-card); border-radius: 20px; padding: 16px 20px; margin-bottom: 15px; 
+            position: relative; cursor: pointer; border: 1px solid rgba(0,0,0,0.1);
+            box-shadow: var(--shadow-3d); animation: slideUp 0.5s ease-out forwards; opacity: 0;
+            will-change: transform;
+        }
+
+        @keyframes slideUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+
+        .code-box { 
+            background: #000; color: #fff; padding: 7px 14px; border-radius: 10px; margin-bottom: 10px;
+            display: flex; align-items: center; justify-content: space-between; font-weight: 900; font-size: 14px;
+            border-left: 3px solid var(--gold-lux);
+        }
+
+        .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+        .full { grid-column: 1 / -1; }
+        .item { display: flex; align-items: center; gap: 6px; font-size: 11.5px; color: #1e293b; }
+        .sym { font-size: 10px; color: var(--gold-lux); }
+        .dc b { color: #64748b; font-weight: 700; font-size: 9px; text-transform: uppercase; margin-right: 4px; }
+        .val { color: #000; font-weight: 700; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+        /* HIỆU ỨNG RUNG LẮC THỊ GIÁC (SHAKE) 300MS */
+        @keyframes hard-shake {
+            0% { transform: translate(0, 0); }
+            10% { transform: translate(-8px, -2px); }
+            20% { transform: translate(8px, 2px); }
+            30% { transform: translate(-8px, 2px); }
+            40% { transform: translate(8px, -2px); }
+            50% { transform: translate(-8px, 2px); }
+            60% { transform: translate(8px, -2px); }
+            70% { transform: translate(-4px, 1px); }
+            80% { transform: translate(4px, -1px); }
+            90% { transform: translate(-2px, 0); }
+            100% { transform: translate(0, 0); }
+        }
+
+        .shaking { 
+            animation: hard-shake 0.3s cubic-bezier(.36,.07,.19,.97) both !important;
+            box-shadow: 0 0 40px var(--gold-lux) !important;
+            z-index: 999;
+            background: #f8f9fa !important;
+        }
+
+        .cp { 
+            background: #fff; padding: 18px; display: none; grid-template-columns: repeat(2, 1fr); gap: 12px; 
+            border-radius: 35px 35px 0 0; border-top: 3px solid var(--gold-lux);
+            padding-bottom: calc(18px + env(safe-area-inset-bottom));
+        }
+        .edit-mode .cp { display: grid; }
+
+        .ca { display: none; margin-top: 12px; gap: 10px; border-top: 1.5px dashed #eee; padding-top: 12px; }
+        .edit-mode .ca { display: flex; }
+
+        .btn { padding: 13px; border: none; border-radius: 12px; font-size: 10px; font-weight: 900; cursor: pointer; text-transform: uppercase; font-family: 'Roboto', sans-serif; }
+        .btn.bg { background: #000; color: var(--gold-lux); box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
+        .btn.br { background: #fff1f2; color: #e11d48; border: 1px solid #fda4af; }
+        .btn.bb { background: #f0f9ff; color: #0369a1; border: 1px solid #bae6fd; }
+        
+        #em { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.98); z-index: 1000; justify-content: center; align-items: center; backdrop-filter: blur(25px); }
+        .mc { background: #fff; padding: 35px; width: 92%; max-width: 380px; border-radius: 40px; border: 2.5px solid var(--gold-lux); }
+        .mc input { width: 100%; padding: 14px; margin: 8px 0; border: 1px solid #e2e8f0; border-radius: 12px; font-size: 15px; outline: none; font-family: 'Roboto', sans-serif; }
+    </style>
+</head>
+<body class="view-mode">
+
+<div id="app">
+    <header>
+        <div class="ttl-group">
+            <div class="ttl">SỔ TAY IPQC</div>
+            <span class="brand">阮清江 © COPYRIGHT 2026 | PRESTIGE ELITE</span>
+        </div>
+        <div id="mi" onclick="_tgl()">✧</div>
+    </header>
+
+    <div class="sa"><input type="text" id="ss" placeholder="Nhập từ khóa tìm kiếm..."></div>
+
+    <div id="dl"><div class="dc" style="animation-delay: 0s;">
+                <div class="code-box"><span></span><span style="font-size:10px; color:var(--gold-lux)">◈</span></div>
+                <div class="info-grid">
+                    <div class="item"><span class="sym">✦</span><b>Model:</b><span class="val">49G93SC</span></div>
+                    <div class="item" style="justify-content:flex-end"><span class="sym">✦</span><b>SAP:</b><span class="val">--</span></div>
+                    <div class="item full"><span class="sym">✦</span><b>Nội bộ:</b><span class="val">2980110263B</span></div>
+                    <div class="item full"><span class="sym">✎</span><b>Ghi chú:</b><span class="val" style="font-weight:400; color:#475569; white-space:normal">Samsung</span></div>
+                </div>
+                <div class="ca">
+                    <button class="btn bb" style="flex:1" onclick="event.stopPropagation(); _edt(0)">Sửa thẻ</button>
+                    <button class="btn br" style="flex:1" onclick="event.stopPropagation(); _del(0)">Xóa thẻ</button>
+                </div></div><div class="dc" style="animation-delay: 0.08s;">
+                <div class="code-box"><span>TRỤ 965E</span><span style="font-size:10px; color:var(--gold-lux)">◈</span></div>
+                <div class="info-grid">
+                    <div class="item"><span class="sym">✦</span><b>Model:</b><span class="val">32M80F</span></div>
+                    <div class="item" style="justify-content:flex-end"><span class="sym">✦</span><b>SAP:</b><span class="val">--</span></div>
+                    <div class="item full"><span class="sym">✦</span><b>Nội bộ:</b><span class="val">2980110381A</span></div>
+                    <div class="item full"><span class="sym">✎</span><b>Ghi chú:</b><span class="val" style="font-weight:400; color:#475569; white-space:normal">Samsung</span></div>
+                </div>
+                <div class="ca">
+                    <button class="btn bb" style="flex:1" onclick="event.stopPropagation(); _edt(1)">Sửa thẻ</button>
+                    <button class="btn br" style="flex:1" onclick="event.stopPropagation(); _del(1)">Xóa thẻ</button>
+                </div></div><div class="dc" style="animation-delay: 0.16s;">
+                <div class="code-box"><span>Trụ 498A</span><span style="font-size:10px; color:var(--gold-lux)">◈</span></div>
+                <div class="info-grid">
+                    <div class="item"><span class="sym">✦</span><b>Model:</b><span class="val">40G75F</span></div>
+                    <div class="item" style="justify-content:flex-end"><span class="sym">✦</span><b>SAP:</b><span class="val">N/A</span></div>
+                    <div class="item full"><span class="sym">✦</span><b>Nội bộ:</b><span class="val">2980110388B</span></div>
+                    <div class="item full"><span class="sym">✎</span><b>Ghi chú:</b><span class="val" style="font-weight:400; color:#475569; white-space:normal">Samsung</span></div>
+                </div>
+                <div class="ca">
+                    <button class="btn bb" style="flex:1" onclick="event.stopPropagation(); _edt(2)">Sửa thẻ</button>
+                    <button class="btn br" style="flex:1" onclick="event.stopPropagation(); _del(2)">Xóa thẻ</button>
+                </div></div><div class="dc" style="animation-delay: 0.24s;">
+                <div class="code-box"><span>Trụ 349A</span><span style="font-size:10px; color:var(--gold-lux)">◈</span></div>
+                <div class="info-grid">
+                    <div class="item"><span class="sym">✦</span><b>Model:</b><span class="val">57G95NC</span></div>
+                    <div class="item" style="justify-content:flex-end"><span class="sym">✦</span><b>SAP:</b><span class="val">N/A</span></div>
+                    <div class="item full"><span class="sym">✦</span><b>Nội bộ:</b><span class="val">2980110268B</span></div>
+                    <div class="item full"><span class="sym">✎</span><b>Ghi chú:</b><span class="val" style="font-weight:400; color:#475569; white-space:normal">Samsung</span></div>
+                </div>
+                <div class="ca">
+                    <button class="btn bb" style="flex:1" onclick="event.stopPropagation(); _edt(3)">Sửa thẻ</button>
+                    <button class="btn br" style="flex:1" onclick="event.stopPropagation(); _del(3)">Xóa thẻ</button>
+                </div></div></div>
+
+    <div class="cp">
+        <button class="btn bb" onclick="document.getElementById('fi').click()">📥 Nhập Excel</button>
+        <button class="btn bg" onclick="_ex()">📤 Xuất Excel</button>
+        <button class="btn bb" onclick="_add()">➕ Thêm Dữ Liệu</button>
+        <button class="btn" style="background: var(--gold-lux); color: #000" onclick="_sv()">💾 Lưu Hệ Thống</button>
+        <button class="btn br" style="grid-column: 1 / -1;" onclick="_clr()">🧹 Xóa Toàn Bộ</button>
+        <input type="file" id="fi" hidden="" accept=".xlsx, .xls" onchange="_imp(event)">
+    </div>
+</div>
+
+<div id="em" style="display: none;">
+    <div class="mc">
+        <h3 style="text-align:center; margin-bottom:20px; font-weight:900; color:var(--gold-lux)">CHỈNH SỬA</h3>
+        <input type="text" id="ec" placeholder="Code">
+        <input type="text" id="el" placeholder="Link SOP">
+        <input type="text" id="emdl" placeholder="Model">
+        <input type="text" id="esap_val" placeholder="SAP">
+        <input type="text" id="enb" placeholder="Mã nội bộ">
+        <input type="text" id="ed" placeholder="Ghi chú">
+        <div style="display: flex; gap: 10px; margin-top: 15px;">
+            <button class="btn bg" style="flex:1" onclick="_conf()">CẬP NHẬT</button>
+            <button class="btn br" style="flex:1" onclick="_cls()">ĐÓNG</button>
+        </div>
+    </div>
+</div>
+
+<script id="data-script">
+    let _D = [{"code":"","link":"Trụ 524A-49G93SC-2980110263B-Samsung.html","model":"49G93SC","sap":"","nb":"2980110263B","desc":"Samsung"},{"code":"TRỤ 965E","link":"TRỤ 965E - 2980110381A.html","model":"32M80F","sap":"","nb":"2980110381A","desc":"Samsung"},{"code":"Trụ 498A","link":"498A-40G75F-2980110388B-Samsung.html","model":"40G75F","sap":"N/A","nb":"2980110388B","desc":"Samsung"},{"code":"Trụ 349A","link":"Trụ 349A-57G95NC-2980110268B-Samsung.html","model":"57G95NC","sap":"N/A","nb":"2980110268B","desc":"Samsung"}]; 
+
+    let _idx = -1;
+    const _VK = "Mzg5MTEx"; 
+
+    function _getV() { return atob(_VK).split("").reverse().join(""); }
+    
+    function _tgl() {
+        if (document.body.classList.contains('view-mode')) {
+            let p = prompt("🔑 Nhập Access Key:");
+            if (p === _getV()) { document.body.className = "edit-mode"; document.getElementById('mi').innerText = "🔓"; _ren(); } 
+            else if(p !== null) { alert("Access Denied!"); }
+        } else { _lck(); }
+    }
+
+    function _lck() { document.body.className = "view-mode"; document.getElementById('mi').innerText = "✧"; _ren(); }
+
+    // XỬ LÝ RUNG LẮC VÀ CHỜ 350MS TRƯỚC KHI CHUYỂN TRANG
+    async function _handleCardClick(index, element) {
+        if (document.body.classList.contains('edit-mode')) return;
+        const item = _D[index];
+        if ("vibrate" in navigator) navigator.vibrate(300);
+        
+        element.classList.add('shaking');
+        await new Promise(resolve => setTimeout(resolve, 350));
+        element.classList.remove('shaking');
+        
+        if (item.link) window.open(item.link, '_blank');
+    }
+
+    function _ren(data = _D) {
+        const l = document.getElementById('dl');
+        l.innerHTML = '';
+        data.forEach((item, i) => {
+            const card = document.createElement('div');
+            card.className = 'dc';
+            card.style.animationDelay = `${i * 0.08}s`;
+            card.onclick = () => _handleCardClick(i, card);
+            card.innerHTML = `
+                <div class="code-box"><span>${item.code}</span><span style="font-size:10px; color:var(--gold-lux)">◈</span></div>
+                <div class="info-grid">
+                    <div class="item"><span class="sym">✦</span><b>Model:</b><span class="val">${item.model}</span></div>
+                    <div class="item" style="justify-content:flex-end"><span class="sym">✦</span><b>SAP:</b><span class="val">${item.sap||'--'}</span></div>
+                    <div class="item full"><span class="sym">✦</span><b>Nội bộ:</b><span class="val">${item.nb||'--'}</span></div>
+                    <div class="item full"><span class="sym">✎</span><b>Ghi chú:</b><span class="val" style="font-weight:400; color:#475569; white-space:normal">${item.desc}</span></div>
+                </div>
+                <div class="ca">
+                    <button class="btn bb" style="flex:1" onclick="event.stopPropagation(); _edt(${i})">Sửa thẻ</button>
+                    <button class="btn br" style="flex:1" onclick="event.stopPropagation(); _del(${i})">Xóa thẻ</button>
+                </div>`;
+            l.appendChild(card);
+        });
+    }
+
+    function _sv() {
+        _lck();
+        setTimeout(() => {
+            let h = document.documentElement.outerHTML;
+            let ds = JSON.stringify(_D);
+            let nh = h.replace(/let _D = \[[\s\S]*?\];/, `let _D = ${ds};`);
+            let b = new Blob([nh], { type: 'text/html' });
+            let a = document.createElement('a');
+            a.href = URL.createObjectURL(b);
+            a.download = `Sổ_Tay_IPQC_Elite_${new Date().getTime()}.html`;
+            a.click();
+        }, 500);
+    }
+
+    function _edt(i) { 
+        _idx = i; const itm = _D[i]; 
+        document.getElementById('ec').value=itm.code; 
+        document.getElementById('el').value=itm.link; 
+        document.getElementById('emdl').value=itm.model; 
+        document.getElementById('esap_val').value=itm.sap || ''; 
+        document.getElementById('enb').value=itm.nb || ''; 
+        document.getElementById('ed').value=itm.desc; 
+        document.getElementById('em').style.display='flex'; 
+    }
+
+    function _add() { _idx = -1; document.querySelectorAll('#em input').forEach(i=>i.value=''); document.getElementById('em').style.display='flex'; }
+    function _conf() { 
+        const o = { code: document.getElementById('ec').value, link: document.getElementById('el').value, model: document.getElementById('emdl').value, sap: document.getElementById('esap_val').value, nb: document.getElementById('enb').value, desc: document.getElementById('ed').value }; 
+        if(_idx===-1) _D.unshift(o); else _D[_idx]=o; 
+        _cls(); _ren(); 
+    }
+    function _del(i) { if(confirm("Xóa thẻ này?")) { _D.splice(i,1); _ren(); } }
+    function _cls() { document.getElementById('em').style.display='none'; }
+    function _clr() { if(confirm("Xóa sạch dữ liệu?")) { _D=[]; _ren(); } }
+    
+    function _ex() { 
+        const ws = XLSX.utils.json_to_sheet(_D.map(item => ({ "Code": item.code, "Model": item.model, "SAP": item.sap, "Mã nội bộ": item.nb, "Ghi chú": item.desc, "Link SOP": item.link })));
+        const wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, ws, "Data"); 
+        XLSX.writeFile(wb, "IPQC_Export.xlsx"); 
+    }
+
+    function _imp(e) { 
+        const r = new FileReader(); 
+        r.onload = (ev) => { 
+            const d = XLSX.utils.sheet_to_json(XLSX.read(new Uint8Array(ev.target.result),{type:'array'}).Sheets[XLSX.read(new Uint8Array(ev.target.result),{type:'array'}).SheetNames[0]]); 
+            _D = d.map(v => ({ code: v["Code"]||v.code||'', model: v["Model"]||v.model||'', sap: v["SAP"]||v.sap||'', nb: v["Mã nội bộ"]||v.nb||'', desc: v["Ghi chú"]||v.desc||'', link: v["Link SOP"]||v.link||'' })); 
+            _ren(); 
+        }; 
+        r.readAsArrayBuffer(e.target.files[0]); 
+    }
+
+    document.getElementById('ss').addEventListener('input', (e) => {
+        const v = e.target.value.toLowerCase();
+        _ren(_D.filter(i => Object.values(i).some(x => String(x).toLowerCase().includes(v))));
+    });
+
+    _ren();
+</script>
+
+
+</body></html>
