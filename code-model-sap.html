@@ -1,472 +1,759 @@
+
 <html lang="vi"><head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sổ tay IPQC - 阮清江</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Sổ tay IPQC Pro - Tối Ưu Hiển Thị</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <style>
-        :root { --p: #2c3e50; --b: #3498db; --g: #27ae60; --a: #e74c3c; --bg: #f4f7f6; }
-        body { font-family: 'Segoe UI', sans-serif; background: #333; margin: 0; display: flex; justify-content: center; height: 100vh; overflow: hidden; }
-        #app { width: 100vw; max-width: 412px; height: 100vh; background: var(--bg); display: flex; flex-direction: column; position: relative; }
-        header { background: var(--p); color: white; padding: 15px; text-align: center; border-bottom: 3px solid var(--b); flex-shrink: 0; position: relative; }
-        .un { font-size: 14px; opacity: 0.9; display: block; margin-top: 4px; letter-spacing: 2px; }
-        #mi { position: absolute; right: 15px; top: 18px; font-size: 20px; cursor: pointer; z-index: 100; }
-        .sa { padding: 10px; background: #fff; border-bottom: 1px solid #ddd; box-sizing: border-box; width: 100%; }
-        #ss { width: 100%; padding: 12px 15px; border-radius: 25px; border: 1px solid #ddd; outline: none; box-sizing: border-box; background: #f9f9f9; }
-        #dl { flex: 1; overflow-y: auto; padding: 12px; padding-bottom: 150px; }
-        .dc { background: white; border-radius: 12px; padding: 15px; margin-bottom: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); border-left: 5px solid var(--b); }
-        .cl { color: var(--b); text-decoration: none; font-weight: bold; font-size: 16px; border-bottom: 1px dashed var(--b); }
-        .cn { color: var(--p); font-weight: bold; font-size: 16px; }
-        .dc p { margin: 5px 0; font-size: 13px; color: #555; }
-        .cp { position: absolute; bottom: 0; width: 100%; background: white; border-top: 2px solid #ddd; padding: 12px; box-sizing: border-box; display: none; grid-template-columns: repeat(2, 1fr); gap: 8px; z-index: 50; box-shadow: 0 -5px 15px rgba(0,0,0,0.1); }
+        :root {
+            --primary: #1a252f; --accent: #3498db; --success: #27ae60; --danger: #e74c3c;
+            --warning: #f39c12; --bg-body: #333333; --bg-app: #f0f2f5; --text-main: #2c3e50;
+            --text-sub: #7f8c8d; --shadow-card: 0 4px 15px rgba(0,0,0,0.08); --radius-main: 12px;
+        }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: var(--bg-body); margin: 0; display: flex; justify-content: center; height: 100vh; overflow: hidden; color: var(--text-main); }
+        #app { width: 100vw; max-width: 480px; height: 100vh; background: var(--bg-app); display: flex; flex-direction: column; position: relative; box-shadow: 0 0 30px rgba(0,0,0,0.3); }
+        header { background: var(--primary); color: white; padding: 20px 15px; text-align: center; flex-shrink: 0; position: relative; transition: background 0.3s ease; z-index: 10; }
+        .edit-mode header { background: var(--warning); border-bottom: 4px solid var(--danger); animation: pulse-border 2s infinite; }
+        @keyframes pulse-border { 0%, 100% { border-bottom-color: var(--danger); } 50% { border-bottom-color: transparent; } }
+        .ttl { font-size: 22px; font-weight: 800; letter-spacing: 1.5px; text-transform: uppercase; }
+        #mi { position: absolute; right: 15px; top: 50%; transform: translateY(-50%); font-size: 26px; cursor: pointer; background: rgba(255,255,255,0.1); padding: 10px; border-radius: 50%; width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; }
+        .sa { padding: 15px; background: #fff; border-bottom: 1px solid #e1e8ed; }
+        #ss { width: 100%; padding: 15px 20px; border-radius: 30px; border: 2px solid #e1e8ed; outline: none; background: #f9f9f9; font-size: 17px; }
+        #dl { flex: 1; overflow-y: auto; padding: 15px; padding-bottom: 180px; }
+        .dc { background: white; border-radius: var(--radius-main); padding: 18px; margin-bottom: 15px; box-shadow: var(--shadow-card); border-left: 6px solid var(--accent); position: relative; }
+        .cn { color: var(--primary); font-weight: 800; font-size: 20px; display: block; margin-bottom: 12px; border-bottom: 1px solid #eee; }
+        .dc p { margin: 8px 0; font-size: 16px; line-height: 1.5; display: flex; align-items: center; }
+        .item-model::before { content: "📦 "; } .item-sap::before { content: "🔢 "; } .item-desc::before { content: "📝 "; }
+        .cp { position: absolute; bottom: 0; width: 100%; background: rgba(255,255,255,0.95); backdrop-filter: blur(10px); padding: 15px; display: none; grid-template-columns: repeat(2, 1fr); gap: 10px; z-index: 50; border-radius: 20px 20px 0 0; }
         .edit-mode .cp { display: grid; }
+        .ca { display: none; margin-top: 15px; border-top: 1px solid #eee; padding-top: 15px; justify-content: flex-end; gap: 10px; }
         .edit-mode .ca { display: flex; }
-        .ca { display: none; margin-top: 10px; border-top: 1px solid #eee; padding-top: 10px; justify-content: flex-end; gap: 8px; }
-        .btn { padding: 12px 5px; border: none; border-radius: 8px; font-size: 11px; font-weight: bold; color: white; cursor: pointer; }
-        .bg { background: var(--g); } .bb { background: var(--b); } .br { background: var(--a); } .bd { background: #34495e; }
-        #em { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 1000; justify-content: center; align-items: center; }
-        .mc { background: white; padding: 20px; width: 85%; border-radius: 15px; }
-        .mc input { width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; }
+        .btn { padding: 15px 10px; border: none; border-radius: var(--radius-main); font-size: 14px; font-weight: bold; color: white; cursor: pointer; }
+        .bb { background: var(--accent); } .bg { background: var(--success); } .br { background: var(--danger); } .bd { background: #34495e; }
+        #em { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 1000; justify-content: center; align-items: center; backdrop-filter: blur(5px); }
+        .mc { background: white; padding: 25px; width: 90%; max-width: 400px; border-radius: 20px; }
+        .mc input { width: 100%; padding: 15px; margin: 10px 0; border: 2px solid #e1e8ed; border-radius: 10px; font-size: 16px; }
     </style>
 </head>
-<body class="edit-mode">
+<body class="view-mode">
 
 <div id="app">
     <header>
-        <div style="font-size: 18px; font-weight: bold; letter-spacing: 2px;">SỔ TAY IPQC</div>
-        <span class="un">阮清江</span>
-        <div id="mi" onclick="_tgl()">🛠️</div>
+        <div class="ttl">SỔ TAY IPQC</div>
+        <span class="un">阮清江 Pro</span>
+        <div id="mi" onclick="_tgl()">👁️</div>
     </header>
 
-    <div class="sa"><input type="text" id="ss" placeholder="🔍 Tìm nhanh..."></div>
-    <div id="dl"><div class="dc"><span class="cn">BN96-24554L</span><p><b>Model:</b> SE450-100</p><p><b>SAP:</b> 4010221147B</p><p><i>ASSY STAND P-COVER NECK;49G95NA,ALDC12,</i></p>
-            <div class="ca">
-                <button class="btn bb" style="padding:5px 10px" onclick="_edt(0)">Sửa</button>
-                <button class="btn br" style="padding:5px 10px" onclick="_del(0)">Xóa</button>
-            </div></div><div class="dc"><span class="cn">BN96-24554N</span><p><b>Model:</b> SE450-100</p><p><b>SAP:</b> 4010221147E</p><p><i>ASSY STAND P-COVER BOTTOM;22T45F,ABS+PET</i></p>
-            <div class="ca">
-                <button class="btn bb" style="padding:5px 10px" onclick="_edt(1)">Sửa</button>
-                <button class="btn br" style="padding:5px 10px" onclick="_del(1)">Xóa</button>
-            </div></div><div class="dc"><span class="cn">BN96-39647D</span><p><b>Model:</b> SE450-100</p><p><b>SAP:</b> 4010221173B</p><p><i>ASSY STAND P-COVER BODY;19SE450,ABS+PET,</i></p>
-            <div class="ca">
-                <button class="btn bb" style="padding:5px 10px" onclick="_edt(2)">Sửa</button>
-                <button class="btn br" style="padding:5px 10px" onclick="_del(2)">Xóa</button>
-            </div></div><div class="dc"><span class="cn">BN96-43194E</span><p><b>Model:</b> ST40-130</p><p><b>SAP:</b> 4010221108B</p><p><i>ASSY STAND P-COVER BODY;24ST40,ABS+PET,B</i></p>
-            <div class="ca">
-                <button class="btn bb" style="padding:5px 10px" onclick="_edt(3)">Sửa</button>
-                <button class="btn br" style="padding:5px 10px" onclick="_del(3)">Xóa</button>
-            </div></div><div class="dc"><span class="cn">BN96-43194D</span><p><b>Model:</b> SE650-130</p><p><b>SAP:</b> 4010221167B</p><p><i>ASSY STAND P-COVER BODY;27SE650,ABS+PET,</i></p>
-            <div class="ca">
-                <button class="btn bb" style="padding:5px 10px" onclick="_edt(4)">Sửa</button>
-                <button class="btn br" style="padding:5px 10px" onclick="_del(4)">Xóa</button>
-            </div></div><div class="dc"><span class="cn">BN96-51947A</span><p><b>Model:</b> 32TU87F</p><p><b>SAP:</b> 4010221068B</p><p><i>ASSY STAND P-COVER NECK;32TU87F,ABS+GF15</i></p>
-            <div class="ca">
-                <button class="btn bb" style="padding:5px 10px" onclick="_edt(5)">Sửa</button>
-                <button class="btn br" style="padding:5px 10px" onclick="_del(5)">Xóa</button>
-            </div></div><div class="dc"><span class="cn">BN96-51948A</span><p><b>Model:</b> 32TU87F</p><p><b>SAP:</b> 4010221069B</p><p><i>ASSY STAND P-COVER TOP;32TU87F,CR-SPCC,N</i></p>
-            <div class="ca">
-                <button class="btn bb" style="padding:5px 10px" onclick="_edt(6)">Sửa</button>
-                <button class="btn br" style="padding:5px 10px" onclick="_del(6)">Xóa</button>
-            </div></div><div class="dc"><span class="cn">BN96-52531C</span><p><b>Model:</b> 32S70A</p><p><b>SAP:</b> 4010221185I</p><p><i>ASSY STAND P-COVER TOP;49G95T,ABS,BK0007</i></p>
-            <div class="ca">
-                <button class="btn bb" style="padding:5px 10px" onclick="_edt(7)">Sửa</button>
-                <button class="btn br" style="padding:5px 10px" onclick="_del(7)">Xóa</button>
-            </div></div><div class="dc"><span class="cn">BN83-21799A</span><p><b>Model:</b> 32S70A</p><p><b>SAP:</b> 4010221185O</p><p><i>DP-ASSY STAND P-COVER NECK;BN96-52531C</i></p>
-            <div class="ca">
-                <button class="btn bb" style="padding:5px 10px" onclick="_edt(8)">Sửa</button>
-                <button class="btn br" style="padding:5px 10px" onclick="_del(8)">Xóa</button>
-            </div></div><div class="dc"><span class="cn">BN96-52531E</span><p><b>Model:</b> 32M51A</p><p><b>SAP:</b> 4010221185N</p><p><i>ASSY STAND P-COVER NECK;32M51A,ABS,WHITE</i></p>
-            <div class="ca">
-                <button class="btn bb" style="padding:5px 10px" onclick="_edt(9)">Sửa</button>
-                <button class="btn br" style="padding:5px 10px" onclick="_del(9)">Xóa</button>
-            </div></div><div class="dc"><span class="cn">BN96-53717A</span><p><b>Model:</b> 43M70A</p><p><b>SAP:</b> 4010221380C</p><p><i>ASSY STAND P-COVER NECK;43M70A,PP+GF40%,</i></p>
-            <div class="ca">
-                <button class="btn bb" style="padding:5px 10px" onclick="_edt(10)">Sửa</button>
-                <button class="btn br" style="padding:5px 10px" onclick="_del(10)">Xóa</button>
-            </div></div><div class="dc"><span class="cn">BN96-53717E</span><p><b>Model:</b> 43M70D</p><p><b>SAP:</b> 4010221638B</p><p><i>ASSY STAND P-COVER NECK;43M70D,PP+GF40%,</i></p>
-            <div class="ca">
-                <button class="btn bb" style="padding:5px 10px" onclick="_edt(11)">Sửa</button>
-                <button class="btn br" style="padding:5px 10px" onclick="_del(11)">Xóa</button>
-            </div></div><div class="dc"><span class="cn">BN96-53717F</span><p><b>Model:</b> 43M70D</p><p><b>SAP:</b> 4010221638D</p><p><i>ASSY STAND P-COVER NECK;43M70D,ABS,WT012</i></p>
-            <div class="ca">
-                <button class="btn bb" style="padding:5px 10px" onclick="_edt(12)">Sửa</button>
-                <button class="btn br" style="padding:5px 10px" onclick="_del(12)">Xóa</button>
-            </div></div><div class="dc"><span class="cn">BN96-53717B</span><p><b>Model:</b> 43M70A</p><p><b>SAP:</b> 4010221380D</p><p><i>ASSY STAND P-COVER NECK;43M70A,PP+GF40%,</i></p>
-            <div class="ca">
-                <button class="btn bb" style="padding:5px 10px" onclick="_edt(13)">Sửa</button>
-                <button class="btn br" style="padding:5px 10px" onclick="_del(13)">Xóa</button>
-            </div></div><div class="dc"><span class="cn">BN96-53717C</span><p><b>Model:</b> 43M70B</p><p><b>SAP:</b> 4010221576B</p><p><i>ASSY STAND P-COVER NECK;43M70B,ABS,WT012</i></p>
-            <div class="ca">
-                <button class="btn bb" style="padding:5px 10px" onclick="_edt(14)">Sửa</button>
-                <button class="btn br" style="padding:5px 10px" onclick="_del(14)">Xóa</button>
-            </div></div><div class="dc"><span class="cn">BN96-53717G</span><p><b>Model:</b> 43M70A</p><p><b>SAP:</b> 4010221659B</p><p><i>ASSY STAND P-COVER NECK;43M70A,CR-SPCC,B</i></p>
-            <div class="ca">
-                <button class="btn bb" style="padding:5px 10px" onclick="_edt(15)">Sửa</button>
-                <button class="btn br" style="padding:5px 10px" onclick="_del(15)">Xóa</button>
-            </div></div><div class="dc"><span class="cn">BN96-56203A</span><p><b>Model:</b> 43G70NC</p><p><b>SAP:</b> 4010121037A</p><p><i>ASSY STAND P-COVER NECK;43G70NC,PC+ABS,W</i></p>
-            <div class="ca">
-                <button class="btn bb" style="padding:5px 10px" onclick="_edt(16)">Sửa</button>
-                <button class="btn br" style="padding:5px 10px" onclick="_del(16)">Xóa</button>
-            </div></div><div class="dc"><span class="cn">BN96-53235A</span><p><b>Model:</b> 34S60A</p><p><b>SAP:</b> 4010221228L</p><p><i>ASSY STAND P-COVER NECK;34S65UA,EGI-SECC</i></p>
-            <div class="ca">
-                <button class="btn bb" style="padding:5px 10px" onclick="_edt(17)">Sửa</button>
-                <button class="btn br" style="padding:5px 10px" onclick="_del(17)">Xóa</button>
-            </div></div><div class="dc"><span class="cn">BN96-53235B</span><p><b>Model:</b> 32S60A</p><p><b>SAP:</b> 4010221228K</p><p><i>ASSY STAND P-COVER NECK;32S60A,EGI-SECC,</i></p>
-            <div class="ca">
-                <button class="btn bb" style="padding:5px 10px" onclick="_edt(18)">Sửa</button>
-                <button class="btn br" style="padding:5px 10px" onclick="_del(18)">Xóa</button>
-            </div></div><div class="dc"><span class="cn">BN96-53235D</span><p><b>Model:</b> B800</p><p><b>SAP:</b> 4010221228P</p><p><i>ASSY STAND P-COVER NECK;MONITOR,ALDC,BLA</i></p>
-            <div class="ca">
-                <button class="btn bb" style="padding:5px 10px" onclick="_edt(19)">Sửa</button>
-                <button class="btn br" style="padding:5px 10px" onclick="_del(19)">Xóa</button>
-            </div></div><div class="dc"><span class="cn">BN96-53235G</span><p><b>Model:</b> 32S80TB</p><p><b>SAP:</b> 4010221228Y</p><p><i>ASSY STAND P-COVER NECK;32S80TB,AI,BLACK</i></p>
-            <div class="ca">
-                <button class="btn bb" style="padding:5px 10px" onclick="_edt(20)">Sửa</button>
-                <button class="btn br" style="padding:5px 10px" onclick="_del(20)">Xóa</button>
-            </div></div><div class="dc"><span class="cn">BN83-17772A</span><p><b>Model:</b> 32S60A-DP</p><p><b>SAP:</b> 4010221572B</p><p><i>DP-ASSY STAND P-COVER NECK;BN96-53235B</i></p>
-            <div class="ca">
-                <button class="btn bb" style="padding:5px 10px" onclick="_edt(21)">Sửa</button>
-                <button class="btn br" style="padding:5px 10px" onclick="_del(21)">Xóa</button>
-            </div></div><div class="dc"><span class="cn">BN96-53235C</span><p><b>Model:</b> 27S60A</p><p><b>SAP:</b> 4010221228J</p><p><i>ASSY STAND P-COVER NECK;27S60A,EGI-SECC,</i></p>
-            <div class="ca">
-                <button class="btn bb" style="padding:5px 10px" onclick="_edt(22)">Sửa</button>
-                <button class="btn br" style="padding:5px 10px" onclick="_del(22)">Xóa</button>
-            </div></div><div class="dc"><span class="cn">BN96-53235E</span><p><b>Model:</b> S80PB</p><p><b>SAP:</b> 4010221228N</p><p><i>ASSY STAND P-COVER NECK;27S80PB,ALDC,BLA</i></p>
-            <div class="ca">
-                <button class="btn bb" style="padding:5px 10px" onclick="_edt(23)">Sửa</button>
-                <button class="btn br" style="padding:5px 10px" onclick="_del(23)">Xóa</button>
-            </div></div><div class="dc"><span class="cn">BN96-53235F</span><p><b>Model:</b> 27S80TB</p><p><b>SAP:</b> 4010221228V</p><p><i>ASSY STAND P-COVER NECK;27S80TB,AI,BLACK</i></p>
-            <div class="ca">
-                <button class="btn bb" style="padding:5px 10px" onclick="_edt(24)">Sửa</button>
-                <button class="btn br" style="padding:5px 10px" onclick="_del(24)">Xóa</button>
-            </div></div><div class="dc"><span class="cn">BN83-17773A</span><p><b>Model:</b> 27S60A-DP</p><p><b>SAP:</b> 4010221572C</p><p><i>DP-ASSY STAND P-COVER NECK;BN96-53235C</i></p>
-            <div class="ca">
-                <button class="btn bb" style="padding:5px 10px" onclick="_edt(25)">Sửa</button>
-                <button class="btn br" style="padding:5px 10px" onclick="_del(25)">Xóa</button>
-            </div></div><div class="dc"><span class="cn">BN96-53343A</span><p><b>Model:</b> 24S60A</p><p><b>SAP:</b> 4010221228I</p><p><i>ASSY STAND P-COVER NECK;24S60A,EGI-SECC,</i></p>
-            <div class="ca">
-                <button class="btn bb" style="padding:5px 10px" onclick="_edt(26)">Sửa</button>
-                <button class="btn br" style="padding:5px 10px" onclick="_del(26)">Xóa</button>
-            </div></div><div class="dc"><span class="cn">BN83-17774A</span><p><b>Model:</b> 24S60A-DP</p><p><b>SAP:</b> 4010221572A</p><p><i>DP-ASSY STAND P-COVER NECK;BN96-53343A</i></p>
-            <div class="ca">
-                <button class="btn bb" style="padding:5px 10px" onclick="_edt(27)">Sửa</button>
-                <button class="btn br" style="padding:5px 10px" onclick="_del(27)">Xóa</button>
-            </div></div><div class="dc"><span class="cn">BN96-53343B</span><p><b>Model:</b> 24S60A</p><p><b>SAP:</b> 4010221228W</p><p><i>ASSY STAND P-COVER NECK;24S60A,PP,BK0020</i></p>
-            <div class="ca">
-                <button class="btn bb" style="padding:5px 10px" onclick="_edt(28)">Sửa</button>
-                <button class="btn br" style="padding:5px 10px" onclick="_del(28)">Xóa</button>
-            </div></div><div class="dc"><span class="cn">BN96-55375A</span><p><b>Model:</b> 25G40B</p><p><b>SAP:</b> 4010221383G</p><p><i>ASSY STAND P-COVER NECK;25G40B,ABS,BK000</i></p>
-            <div class="ca">
-                <button class="btn bb" style="padding:5px 10px" onclick="_edt(29)">Sửa</button>
-                <button class="btn br" style="padding:5px 10px" onclick="_del(29)">Xóa</button>
-            </div></div><div class="dc"><span class="cn">BN83-19655A</span><p><b>Model:</b> 25G40B-DP</p><p><b>SAP:</b> 4010221383N</p><p><i>DP-ASSY STAND P-COVER NECK;BN96-55375A</i></p>
-            <div class="ca">
-                <button class="btn bb" style="padding:5px 10px" onclick="_edt(30)">Sửa</button>
-                <button class="btn br" style="padding:5px 10px" onclick="_del(30)">Xóa</button>
-            </div></div><div class="dc"><span class="cn">BN83-19656A</span><p><b>Model:</b> 27G40B-DP</p><p><b>SAP:</b> 4010221383O</p><p><i>DP-ASSY STAND P-COVER NECK;BN96-55375B</i></p>
-            <div class="ca">
-                <button class="btn bb" style="padding:5px 10px" onclick="_edt(31)">Sửa</button>
-                <button class="btn br" style="padding:5px 10px" onclick="_del(31)">Xóa</button>
-            </div></div><div class="dc"><span class="cn">BN96-55375B</span><p><b>Model:</b> 27G40B</p><p><b>SAP:</b> 4010221383H</p><p><i>ASSY STAND P-COVER NECK;27G40B,ABS,BK000</i></p>
-            <div class="ca">
-                <button class="btn bb" style="padding:5px 10px" onclick="_edt(32)">Sửa</button>
-                <button class="btn br" style="padding:5px 10px" onclick="_del(32)">Xóa</button>
-            </div></div><div class="dc"><span class="cn">BN96-55005A</span><p><b>Model:</b> 32G70B</p><p><b>SAP:</b> 4010221382N</p><p><i>ASSY STAND P-COVER NECK;32G70B,ABS,BK000</i></p>
-            <div class="ca">
-                <button class="btn bb" style="padding:5px 10px" onclick="_edt(33)">Sửa</button>
-                <button class="btn br" style="padding:5px 10px" onclick="_del(33)">Xóa</button>
-            </div></div><div class="dc"><span class="cn">BN96-55005B</span><p><b>Model:</b> 27G65B</p><p><b>SAP:</b> 4010221382O</p><p><i>ASSY STAND P-COVER NECK;27G65B,ABS,BK000</i></p>
-            <div class="ca">
-                <button class="btn bb" style="padding:5px 10px" onclick="_edt(34)">Sửa</button>
-                <button class="btn br" style="padding:5px 10px" onclick="_del(34)">Xóa</button>
-            </div></div><div class="dc"><span class="cn">BN96-55005C</span><p><b>Model:</b> G75NB</p><p><b>SAP:</b> 4010221382H</p><p><i>ASSY STAND P-COVER NECK;32G75NB,ABS,BK00</i></p>
-            <div class="ca">
-                <button class="btn bb" style="padding:5px 10px" onclick="_edt(35)">Sửa</button>
-                <button class="btn br" style="padding:5px 10px" onclick="_del(35)">Xóa</button>
-            </div></div><div class="dc"><span class="cn">BN96-55005D</span><p><b>Model:</b> 32G65B</p><p><b>SAP:</b> 4010221464C</p><p><i>ASSY STAND P-COVER NECK;32G65B,ABS,BK000</i></p>
-            <div class="ca">
-                <button class="btn bb" style="padding:5px 10px" onclick="_edt(36)">Sửa</button>
-                <button class="btn br" style="padding:5px 10px" onclick="_del(36)">Xóa</button>
-            </div></div><div class="dc"><span class="cn">BN96-55005E</span><p><b>Model:</b> 28G70B</p><p><b>SAP:</b> 4010221382S</p><p><i>ASSY STAND P-COVER NECK;28G70B,ABS,BK000</i></p>
-            <div class="ca">
-                <button class="btn bb" style="padding:5px 10px" onclick="_edt(37)">Sửa</button>
-                <button class="btn br" style="padding:5px 10px" onclick="_del(37)">Xóa</button>
-            </div></div><div class="dc"><span class="cn">BN96-55380A</span><p><b>Model:</b> 32G85NB</p><p><b>SAP:</b> 4010221382G</p><p><i>ASSY STAND P-COVER NECK;32G85NB,ABS,WHIT</i></p>
-            <div class="ca">
-                <button class="btn bb" style="padding:5px 10px" onclick="_edt(38)">Sửa</button>
-                <button class="btn br" style="padding:5px 10px" onclick="_del(38)">Xóa</button>
-            </div></div><div class="dc"><span class="cn">BN96-56965A</span><p><b>Model:</b> 32M80C</p><p><b>SAP:</b> 4010221571B</p><p><i>ASSY STAND P-COVER NECK;32M80C,PC+ABS,WT</i></p>
-            <div class="ca">
-                <button class="btn bb" style="padding:5px 10px" onclick="_edt(39)">Sửa</button>
-                <button class="btn br" style="padding:5px 10px" onclick="_del(39)">Xóa</button>
-            </div></div><div class="dc"><span class="cn">BN83-22043A</span><p><b>Model:</b> -</p><p><b>SAP:</b> 4010221571A</p><p><i>DP-ASSY STAND P-COVER NECK;BN96-56965A</i></p>
-            <div class="ca">
-                <button class="btn bb" style="padding:5px 10px" onclick="_edt(40)">Sửa</button>
-                <button class="btn br" style="padding:5px 10px" onclick="_del(40)">Xóa</button>
-            </div></div><div class="dc"><span class="cn">BN96-56965B</span><p><b>Model:</b> 32M80C</p><p><b>SAP:</b> 4010221571C</p><p><i>ASSY STAND P-COVER NECK;32M80C,PC+ABS,RD</i></p>
-            <div class="ca">
-                <button class="btn bb" style="padding:5px 10px" onclick="_edt(41)">Sửa</button>
-                <button class="btn br" style="padding:5px 10px" onclick="_del(41)">Xóa</button>
-            </div></div><div class="dc"><span class="cn">BN96-56965C</span><p><b>Model:</b> 32M80C</p><p><b>SAP:</b> 4010221571D</p><p><i>ASSY STAND P-COVER NECK;32M80C,PC+ABS,BL</i></p>
-            <div class="ca">
-                <button class="btn bb" style="padding:5px 10px" onclick="_edt(42)">Sửa</button>
-                <button class="btn br" style="padding:5px 10px" onclick="_del(42)">Xóa</button>
-            </div></div><div class="dc"><span class="cn">BN96-56965D</span><p><b>Model:</b> 32M80C</p><p><b>SAP:</b> 4010221571E</p><p><i>ASSY STAND P-COVER NECK;32M80C,PC+ABS,GR</i></p>
-            <div class="ca">
-                <button class="btn bb" style="padding:5px 10px" onclick="_edt(43)">Sửa</button>
-                <button class="btn br" style="padding:5px 10px" onclick="_del(43)">Xóa</button>
-            </div></div><div class="dc"><span class="cn">BN96-56022A</span><p><b>Model:</b> 34G85SB</p><p><b>SAP:</b> 4010221490D</p><p><i>ASSY STAND P-COVER NECK;34G85SB,ABS,GY03</i></p>
-            <div class="ca">
-                <button class="btn bb" style="padding:5px 10px" onclick="_edt(44)">Sửa</button>
-                <button class="btn br" style="padding:5px 10px" onclick="_del(44)">Xóa</button>
-            </div></div><div class="dc"><span class="cn">BN96-57316A</span><p><b>Model:</b> 49G95SC</p><p><b>SAP:</b> 4010221579C</p><p><i>ASSY STAND P-COVER NECK;49G95SC,ABS,GY03</i></p>
-            <div class="ca">
-                <button class="btn bb" style="padding:5px 10px" onclick="_edt(45)">Sửa</button>
-                <button class="btn br" style="padding:5px 10px" onclick="_del(45)">Xóa</button>
-            </div></div><div class="dc"><span class="cn">BN96-57368A</span><p><b>Model:</b> 27M80C</p><p><b>SAP:</b> 4010221580C</p><p><i>ASSY STAND P-COVER NECK;27M80C,PC+ABS,WT</i></p>
-            <div class="ca">
-                <button class="btn bb" style="padding:5px 10px" onclick="_edt(46)">Sửa</button>
-                <button class="btn br" style="padding:5px 10px" onclick="_del(46)">Xóa</button>
-            </div></div><div class="dc"><span class="cn">BN96-57368B</span><p><b>Model:</b> 27S90PC</p><p><b>SAP:</b> 4010221581D</p><p><i>ASSY STAND P-COVER NECK;27S90PC,PC+ABS,W</i></p>
-            <div class="ca">
-                <button class="btn bb" style="padding:5px 10px" onclick="_edt(47)">Sửa</button>
-                <button class="btn br" style="padding:5px 10px" onclick="_del(47)">Xóa</button>
-            </div></div><div class="dc"><span class="cn">BN96-57368C</span><p><b>Model:</b> 27M80C</p><p><b>SAP:</b> 4010221580F</p><p><i>ASSY STAND P-COVER NECK;27M80C,PC+ABS,BL</i></p>
-            <div class="ca">
-                <button class="btn bb" style="padding:5px 10px" onclick="_edt(48)">Sửa</button>
-                <button class="btn br" style="padding:5px 10px" onclick="_del(48)">Xóa</button>
-            </div></div><div class="dc"><span class="cn">BN96-57368D</span><p><b>Model:</b> 27M80C</p><p><b>SAP:</b> 4010221580D</p><p><i>ASSY STAND P-COVER NECK;27M80C,PC+ABS,GR</i></p>
-            <div class="ca">
-                <button class="btn bb" style="padding:5px 10px" onclick="_edt(49)">Sửa</button>
-                <button class="btn br" style="padding:5px 10px" onclick="_del(49)">Xóa</button>
-            </div></div><div class="dc"><span class="cn">BN96-57368E</span><p><b>Model:</b> 27M80C</p><p><b>SAP:</b> 4010221580E</p><p><i>ASSY STAND P-COVER NECK;27M80C,PC+ABS,RD</i></p>
-            <div class="ca">
-                <button class="btn bb" style="padding:5px 10px" onclick="_edt(50)">Sửa</button>
-                <button class="btn br" style="padding:5px 10px" onclick="_del(50)">Xóa</button>
-            </div></div><div class="dc"><span class="cn">BN96-57349A</span><p><b>Model:</b> 57G95NC</p><p><b>SAP:</b> 4010221578B</p><p><i>ASSY STAND P-COVER NECK;57G95NC,ALDC12,B</i></p>
-            <div class="ca">
-                <button class="btn bb" style="padding:5px 10px" onclick="_edt(51)">Sửa</button>
-                <button class="btn br" style="padding:5px 10px" onclick="_del(51)">Xóa</button>
-            </div></div><div class="dc"><span class="cn">BN96-57524A</span><p><b>Model:</b> 49G93SC</p><p><b>SAP:</b> 4010221582B</p><p><i>ASSY STAND P-COVER NECK;49G93SC,ABS,GY03</i></p>
-            <div class="ca">
-                <button class="btn bb" style="padding:5px 10px" onclick="_edt(52)">Sửa</button>
-                <button class="btn br" style="padding:5px 10px" onclick="_del(52)">Xóa</button>
-            </div></div><div class="dc"><span class="cn">BN96-58157A</span><p><b>Model:</b> 49G95C</p><p><b>SAP:</b> 4010221602B</p><p><i>ASSY STAND P-COVER NECK;49G95C,ALDC12,BL</i></p>
-            <div class="ca">
-                <button class="btn bb" style="padding:5px 10px" onclick="_edt(53)">Sửa</button>
-                <button class="btn br" style="padding:5px 10px" onclick="_del(53)">Xóa</button>
-            </div></div><div class="dc"><span class="cn">BN96-58659A</span><p><b>Model:</b> 27G50D</p><p><b>SAP:</b> 4010221603B</p><p><i>ASSY STAND P-COVER NECK;27G50D,ABS,BK000</i></p>
-            <div class="ca">
-                <button class="btn bb" style="padding:5px 10px" onclick="_edt(54)">Sửa</button>
-                <button class="btn br" style="padding:5px 10px" onclick="_del(54)">Xóa</button>
-            </div></div><div class="dc"><span class="cn">BN96-58659B</span><p><b>Model:</b> 32G50D</p><p><b>SAP:</b> 4010221605B</p><p><i>ASSY STAND P-COVER NECK;32G50D,ABS,BK000</i></p>
-            <div class="ca">
-                <button class="btn bb" style="padding:5px 10px" onclick="_edt(55)">Sửa</button>
-                <button class="btn br" style="padding:5px 10px" onclick="_del(55)">Xóa</button>
-            </div></div><div class="dc"><span class="cn">BN83-24119A</span><p><b>Model:</b> ST40</p><p><b>SAP:</b> 4010221108F</p><p><i>DP-ASSY STAND P-COVER BODY;BN96-43194G</i></p>
-            <div class="ca">
-                <button class="btn bb" style="padding:5px 10px" onclick="_edt(56)">Sửa</button>
-                <button class="btn br" style="padding:5px 10px" onclick="_del(56)">Xóa</button>
-            </div></div><div class="dc"><span class="cn">BN83-14370A</span><p><b>Model:</b> -</p><p><b>SAP:</b> 4190110051A</p><p><i>DP-COVER-STAND BOTTOM;BN63-09999A</i></p>
-            <div class="ca">
-                <button class="btn bb" style="padding:5px 10px" onclick="_edt(57)">Sửa</button>
-                <button class="btn br" style="padding:5px 10px" onclick="_del(57)">Xóa</button>
-            </div></div><div class="dc"><span class="cn">BN83-20168A</span><p><b>Model:</b> -</p><p><b>SAP:</b> 4190110050A</p><p><i>DP-COVER-STAND TOP;BN63-09998A</i></p>
-            <div class="ca">
-                <button class="btn bb" style="padding:5px 10px" onclick="_edt(58)">Sửa</button>
-                <button class="btn br" style="padding:5px 10px" onclick="_del(58)">Xóa</button>
-            </div></div><div class="dc"><span class="cn">BN96-58969A</span><p><b>Model:</b> 27G60SD</p><p><b>SAP:</b> 4010221615C</p><p><i>ASSY STAND P-COVER NECK;27G60SD,ABS,GY03</i></p>
-            <div class="ca">
-                <button class="btn bb" style="padding:5px 10px" onclick="_edt(59)">Sửa</button>
-                <button class="btn br" style="padding:5px 10px" onclick="_del(59)">Xóa</button>
-            </div></div><div class="dc"><span class="cn">BN96-58969B</span><p><b>Model:</b> 32G80SD</p><p><b>SAP:</b> 4010221615D</p><p><i>ASSY STAND P-COVER NECK;32G80SD,ABS,GY03</i></p>
-            <div class="ca">
-                <button class="btn bb" style="padding:5px 10px" onclick="_edt(60)">Sửa</button>
-                <button class="btn br" style="padding:5px 10px" onclick="_del(60)">Xóa</button>
-            </div></div><div class="dc"><span class="cn">BN96-59011A</span><p><b>Model:</b> 27S60D</p><p><b>SAP:</b> 4010221616C</p><p><i>ASSY STAND P-COVER NECK;27S60D,ABS,BK000</i></p>
-            <div class="ca">
-                <button class="btn bb" style="padding:5px 10px" onclick="_edt(61)">Sửa</button>
-                <button class="btn br" style="padding:5px 10px" onclick="_del(61)">Xóa</button>
-            </div></div><div class="dc"><span class="cn">BN96-59011B</span><p><b>Model:</b> 32S60D</p><p><b>SAP:</b> 4010221624C</p><p><i>ASSY STAND P-COVER NECK;32S60D,ABS,BK000</i></p>
-            <div class="ca">
-                <button class="btn bb" style="padding:5px 10px" onclick="_edt(62)">Sửa</button>
-                <button class="btn br" style="padding:5px 10px" onclick="_del(62)">Xóa</button>
-            </div></div><div class="dc"><span class="cn">BN96-59011C</span><p><b>Model:</b> 24S60D</p><p><b>SAP:</b> 4010221620B</p><p><i>ASSY STAND P-COVER NECK;24S60D,ABS,BK000</i></p>
-            <div class="ca">
-                <button class="btn bb" style="padding:5px 10px" onclick="_edt(63)">Sửa</button>
-                <button class="btn br" style="padding:5px 10px" onclick="_del(63)">Xóa</button>
-            </div></div><div class="dc"><span class="cn">BN96-59011D</span><p><b>Model:</b> 27S60D</p><p><b>SAP:</b> 4010221624G</p><p><i>ASSY STAND P-COVER NECK;27S60D,ABS,BK000</i></p>
-            <div class="ca">
-                <button class="btn bb" style="padding:5px 10px" onclick="_edt(64)">Sửa</button>
-                <button class="btn br" style="padding:5px 10px" onclick="_del(64)">Xóa</button>
-            </div></div><div class="dc"><span class="cn">BN96-59011E</span><p><b>Model:</b> 32S60D</p><p><b>SAP:</b> 4010221624E</p><p><i>ASSY STAND P-COVER NECK;32S60D,ABS,BK000</i></p>
-            <div class="ca">
-                <button class="btn bb" style="padding:5px 10px" onclick="_edt(65)">Sửa</button>
-                <button class="btn br" style="padding:5px 10px" onclick="_del(65)">Xóa</button>
-            </div></div><div class="dc"><span class="cn">BN96-59250A</span><p><b>Model:</b> 27S70D</p><p><b>SAP:</b> 4010221627E</p><p><i>ASSY STAND P-COVER NECK;27S70D,ABS,BK000</i></p>
-            <div class="ca">
-                <button class="btn bb" style="padding:5px 10px" onclick="_edt(66)">Sửa</button>
-                <button class="btn br" style="padding:5px 10px" onclick="_del(66)">Xóa</button>
-            </div></div><div class="dc"><span class="cn">BN96-59250B</span><p><b>Model:</b> 32S70D</p><p><b>SAP:</b> 4010221627G</p><p><i>ASSY STAND P-COVER NECK;32S70D,ABS,BK000</i></p>
-            <div class="ca">
-                <button class="btn bb" style="padding:5px 10px" onclick="_edt(67)">Sửa</button>
-                <button class="btn br" style="padding:5px 10px" onclick="_del(67)">Xóa</button>
-            </div></div><div class="dc"><span class="cn">BN96-59250D</span><p><b>Model:</b> 32S71D</p><p><b>SAP:</b> 4010221627H</p><p><i>ASSY STAND P-COVER NECK;32S70D,ABS,WT014</i></p>
-            <div class="ca">
-                <button class="btn bb" style="padding:5px 10px" onclick="_edt(68)">Sửa</button>
-                <button class="btn br" style="padding:5px 10px" onclick="_del(68)">Xóa</button>
-            </div></div><div class="dc"><span class="cn">BN96-60232A</span><p><b>Model:</b> 27S40GD</p><p><b>SAP:</b> 4010221644D</p><p><i>ASSY STAND P-COVER NECK;27S40GD,PP+GF35%</i></p>
-            <div class="ca">
-                <button class="btn bb" style="padding:5px 10px" onclick="_edt(69)">Sửa</button>
-                <button class="btn br" style="padding:5px 10px" onclick="_del(69)">Xóa</button>
-            </div></div><div class="dc"><span class="cn">BN96-60232B</span><p><b>Model:</b> 22S40GD</p><p><b>SAP:</b> 4010221644F</p><p><i>ASSY STAND P-COVER NECK;S40GD,PP+GF35%+P</i></p>
-            <div class="ca">
-                <button class="btn bb" style="padding:5px 10px" onclick="_edt(70)">Sửa</button>
-                <button class="btn br" style="padding:5px 10px" onclick="_del(70)">Xóa</button>
-            </div></div><div class="dc"><span class="cn">BN96-60232C</span><p><b>Model:</b> 24S40GD</p><p><b>SAP:</b> 4010221644E</p><p><i>ASSY STAND P-COVER NECK;S40GD,PP+GF35%+P</i></p>
-            <div class="ca">
-                <button class="btn bb" style="padding:5px 10px" onclick="_edt(71)">Sửa</button>
-                <button class="btn br" style="padding:5px 10px" onclick="_del(71)">Xóa</button>
-            </div></div><div class="dc"><span class="cn">BN96-60677A</span><p><b>Model:</b> 37S80D</p><p><b>SAP:</b> 4010221651B</p><p><i>ASSY STAND P-COVER NECK;37S80D,ABS,BK000</i></p>
-            <div class="ca">
-                <button class="btn bb" style="padding:5px 10px" onclick="_edt(72)">Sửa</button>
-                <button class="btn br" style="padding:5px 10px" onclick="_del(72)">Xóa</button>
-            </div></div><div class="dc"><span class="cn">BN96-60677B</span><p><b>Model:</b> 37S80UD</p><p><b>SAP:</b> 4010221651D</p><p><i>ASSY STAND P-COVER NECK;37S80UD,INDIA</i></p>
-            <div class="ca">
-                <button class="btn bb" style="padding:5px 10px" onclick="_edt(73)">Sửa</button>
-                <button class="btn br" style="padding:5px 10px" onclick="_del(73)">Xóa</button>
-            </div></div><div class="dc"><span class="cn">BN96-60820A</span><p><b>Model:</b> 27G90XF</p><p><b>SAP:</b> 4010221650B</p><p><i>ASSY STAND P-COVER NECK;27G90XF,PC+ABS,W</i></p>
-            <div class="ca">
-                <button class="btn bb" style="padding:5px 10px" onclick="_edt(74)">Sửa</button>
-                <button class="btn br" style="padding:5px 10px" onclick="_del(74)">Xóa</button>
-            </div></div><div class="dc"><span class="cn">BN96-53235J</span><p><b>Model:</b> 32S60A</p><p><b>SAP:</b> 4010221662G</p><p><i>ASSY STAND P-COVER NECK;32S80PB,AI,Natur</i></p>
-            <div class="ca">
-                <button class="btn bb" style="padding:5px 10px" onclick="_edt(75)">Sửa</button>
-                <button class="btn br" style="padding:5px 10px" onclick="_del(75)">Xóa</button>
-            </div></div><div class="dc"><span class="cn">BN96-60232D</span><p><b>Model:</b> 22S40GD</p><p><b>SAP:</b> 4010221644L</p><p><i>ASSY STAND P-COVER NECK;22S40GD,HIPS,BK0</i></p>
-            <div class="ca">
-                <button class="btn bb" style="padding:5px 10px" onclick="_edt(76)">Sửa</button>
-                <button class="btn br" style="padding:5px 10px" onclick="_del(76)">Xóa</button>
-            </div></div><div class="dc"><span class="cn">BN96-60232E</span><p><b>Model:</b> 24S40GD</p><p><b>SAP:</b> 4010221644K</p><p><i>ASSY STAND P-COVER NECK;24S40GD,HIPS,BK0</i></p>
-            <div class="ca">
-                <button class="btn bb" style="padding:5px 10px" onclick="_edt(77)">Sửa</button>
-                <button class="btn br" style="padding:5px 10px" onclick="_del(77)">Xóa</button>
-            </div></div><div class="dc"><span class="cn">BN96-60232F</span><p><b>Model:</b> 27S40GD</p><p><b>SAP:</b> 4010221644J</p><p><i>ASSY STAND P-COVER NECK;27S40GD,HIPS,BK0</i></p>
-            <div class="ca">
-                <button class="btn bb" style="padding:5px 10px" onclick="_edt(78)">Sửa</button>
-                <button class="btn br" style="padding:5px 10px" onclick="_del(78)">Xóa</button>
-            </div></div><div class="dc"><span class="cn">BN96-53235H</span><p><b>Model:</b> 27S80PB</p><p><b>SAP:</b> 4010221662F</p><p><i>ASSY STAND P-COVER NECK;27S80PB,AI,Natur</i></p>
-            <div class="ca">
-                <button class="btn bb" style="padding:5px 10px" onclick="_edt(79)">Sửa</button>
-                <button class="btn br" style="padding:5px 10px" onclick="_del(79)">Xóa</button>
-            </div></div><div class="dc"><span class="cn">BN96-59011F</span><p><b>Model:</b> 24S60D</p><p><b>SAP:</b> 4010221624H</p><p><i>ASSY STAND P-COVER NECK;24S60D,ABS,BK000</i></p>
-            <div class="ca">
-                <button class="btn bb" style="padding:5px 10px" onclick="_edt(80)">Sửa</button>
-                <button class="btn br" style="padding:5px 10px" onclick="_del(80)">Xóa</button>
-            </div></div><div class="dc"><span class="cn">BN96-56965E</span><p><b>Model:</b> 32M80B</p><p><b>SAP:</b> 4010221658B</p><p><i>ASSY STAND P-COVER NECK;32M80F,PC+ABS,WT</i></p>
-            <div class="ca">
-                <button class="btn bb" style="padding:5px 10px" onclick="_edt(81)">Sửa</button>
-                <button class="btn br" style="padding:5px 10px" onclick="_del(81)">Xóa</button>
-            </div></div><div class="dc"><span class="cn">BN96-58157C</span><p><b>Model:</b> 49G95C</p><p><b>SAP:</b> 4010221602F</p><p><i>ASSY STAND P-COVER NECK;49S95UF,ABS,BK00</i></p>
-            <div class="ca">
-                <button class="btn bb" style="padding:5px 10px" onclick="_edt(82)">Sửa</button>
-                <button class="btn br" style="padding:5px 10px" onclick="_del(82)">Xóa</button>
-            </div></div><div class="dc"><span class="cn">BN96-52531G</span><p><b>Model:</b> 32M70F</p><p><b>SAP:</b> 4010221185P</p><p><i>ASSY STAND P-COVER NECK;32M70F,ABS,BLACK</i></p>
-            <div class="ca">
-                <button class="btn bb" style="padding:5px 10px" onclick="_edt(83)">Sửa</button>
-                <button class="btn br" style="padding:5px 10px" onclick="_del(83)">Xóa</button>
-            </div></div><div class="dc"><span class="cn">BN96-52531H</span><p><b>Model:</b> 32M71F</p><p><b>SAP:</b> 4010221185Q</p><p><i>ASSY STAND P-COVER NECK;32M71F,ABS,WHITE</i></p>
-            <div class="ca">
-                <button class="btn bb" style="padding:5px 10px" onclick="_edt(84)">Sửa</button>
-                <button class="btn br" style="padding:5px 10px" onclick="_del(84)">Xóa</button>
-            </div></div><div class="dc"><span class="cn">BN96-53717H</span><p><b>Model:</b> 43M70F</p><p><b>SAP:</b> 4010221638E</p><p><i>ASSY STAND P-COVER NECK;43M70F,ABS+PET,B</i></p>
-            <div class="ca">
-                <button class="btn bb" style="padding:5px 10px" onclick="_edt(85)">Sửa</button>
-                <button class="btn br" style="padding:5px 10px" onclick="_del(85)">Xóa</button>
-            </div></div><div class="dc"><span class="cn">BN96-53717J</span><p><b>Model:</b> 43M71F</p><p><b>SAP:</b> 4010221638F</p><p><i>ASSY STAND P-COVER NECK;43M71F,ABS,WT012</i></p>
-            <div class="ca">
-                <button class="btn bb" style="padding:5px 10px" onclick="_edt(86)">Sửa</button>
-                <button class="btn br" style="padding:5px 10px" onclick="_del(86)">Xóa</button>
-            </div></div><div class="dc"><span class="cn">BN96-56965F</span><p><b>Model:</b> 32M80F</p><p><b>SAP:</b> 4010221658C</p><p><i>ASSY STAND P-COVER NECK;32M80F,PC+ABS,WT</i></p>
-            <div class="ca">
-                <button class="btn bb" style="padding:5px 10px" onclick="_edt(87)">Sửa</button>
-                <button class="btn br" style="padding:5px 10px" onclick="_del(87)">Xóa</button>
-            </div></div><div class="dc"><span class="cn">BN96-58157B</span><p><b>Model:</b> 49G95C</p><p><b>SAP:</b> 4010221602D</p><p><i>ASSY STAND P-COVER NECK;G95C,ABS,BK0008,</i></p>
-            <div class="ca">
-                <button class="btn bb" style="padding:5px 10px" onclick="_edt(88)">Sửa</button>
-                <button class="btn br" style="padding:5px 10px" onclick="_del(88)">Xóa</button>
-            </div></div><div class="dc"><span class="cn">BN96-62495A</span><p><b>Model:</b> 37G75F</p><p><b>SAP:</b> 4010221660B</p><p><i>ASSY STAND P-COVER NECK;37G75F,HIPS,BK00</i></p>
-            <div class="ca">
-                <button class="btn bb" style="padding:5px 10px" onclick="_edt(89)">Sửa</button>
-                <button class="btn br" style="padding:5px 10px" onclick="_del(89)">Xóa</button>
-            </div></div><div class="dc"><span class="cn">BN96-62498A</span><p><b>Model:</b> 40G75F</p><p><b>SAP:</b> 4010221661B</p><p><i>ASSY STAND P-COVER NECK;40G75F,HIPS,BK00</i></p>
-            <div class="ca">
-                <button class="btn bb" style="padding:5px 10px" onclick="_edt(90)">Sửa</button>
-                <button class="btn br" style="padding:5px 10px" onclick="_del(90)">Xóa</button>
-            </div></div><div class="dc"><span class="cn">BN96-62495B</span><p><b>Model:</b> 37G75F</p><p><b>SAP:</b> 4010221660D</p><p><i>ASSY STAND P-COVER NECK;37G75F,HIPS,BK00</i></p>
-            <div class="ca">
-                <button class="btn bb" style="padding:5px 10px" onclick="_edt(91)">Sửa</button>
-                <button class="btn br" style="padding:5px 10px" onclick="_del(91)">Xóa</button>
-            </div></div><div class="dc"><span class="cn">BN96-62498B</span><p><b>Model:</b> 40G75F</p><p><b>SAP:</b> 4010221661D</p><p><i>ASSY STAND P-COVER NECK;40G75F,HIPS,BK00</i></p>
-            <div class="ca">
-                <button class="btn bb" style="padding:5px 10px" onclick="_edt(92)">Sửa</button>
-                <button class="btn br" style="padding:5px 10px" onclick="_del(92)">Xóa</button>
-            </div></div><div class="dc"><span class="cn">BN96-48369B</span><p><b>Model:</b> -</p><p><b>SAP:</b> -</p><p><i>ASSY STAND P-COVER BODY;32UR591C,ABS,WT0127,EUROPE/NETHERLANDS</i></p>
-            <div class="ca">
-                <button class="btn bb" style="padding:5px 10px" onclick="_edt(93)">Sửa</button>
-                <button class="btn br" style="padding:5px 10px" onclick="_del(93)">Xóa</button>
-            </div></div><div class="dc"><span class="cn">BN96-44129A</span><p><b>Model:</b> -</p><p><b>SAP:</b> -</p><p><i>ASSY STAND P-COVER BODY;49HG90,ABS,GY0318,SILVER SPRAY,EUROPE/NETHERLAND</i></p>
-            <div class="ca">
-                <button class="btn bb" style="padding:5px 10px" onclick="_edt(94)">Sửa</button>
-                <button class="btn br" style="padding:5px 10px" onclick="_del(94)">Xóa</button>
-            </div></div></div>
+    <div class="sa"><input type="text" id="ss" placeholder="🔍 Tìm nhanh Code, Model, SAP..."></div>
+    <div id="dl"><div class="dc"><span class="cn">BN96-24554L</span>
+                <p class="item-model"><b>Model:</b> SE450-100</p>
+                <p class="item-sap"><b>SAP:</b> 4010221147B</p>
+                <p class="item-desc"><i>ASSY STAND P-COVER NECK;49G95NA,ALDC12,</i></p>
+                <div class="ca">
+                    <button class="btn bb" onclick="_edt(0)">Sửa</button>
+                    <button class="btn br" onclick="_del(0)">Xóa</button>
+                </div></div><div class="dc"><span class="cn">BN96-24554N</span>
+                <p class="item-model"><b>Model:</b> SE450-100</p>
+                <p class="item-sap"><b>SAP:</b> 4010221147E</p>
+                <p class="item-desc"><i>ASSY STAND P-COVER BOTTOM;22T45F,ABS+PET</i></p>
+                <div class="ca">
+                    <button class="btn bb" onclick="_edt(1)">Sửa</button>
+                    <button class="btn br" onclick="_del(1)">Xóa</button>
+                </div></div><div class="dc"><span class="cn">BN96-39647D</span>
+                <p class="item-model"><b>Model:</b> SE450-100</p>
+                <p class="item-sap"><b>SAP:</b> 4010221173B</p>
+                <p class="item-desc"><i>ASSY STAND P-COVER BODY;19SE450,ABS+PET,</i></p>
+                <div class="ca">
+                    <button class="btn bb" onclick="_edt(2)">Sửa</button>
+                    <button class="btn br" onclick="_del(2)">Xóa</button>
+                </div></div><div class="dc"><span class="cn">BN96-43194E</span>
+                <p class="item-model"><b>Model:</b> ST40-130</p>
+                <p class="item-sap"><b>SAP:</b> 4010221108B</p>
+                <p class="item-desc"><i>ASSY STAND P-COVER BODY;24ST40,ABS+PET,B</i></p>
+                <div class="ca">
+                    <button class="btn bb" onclick="_edt(3)">Sửa</button>
+                    <button class="btn br" onclick="_del(3)">Xóa</button>
+                </div></div><div class="dc"><span class="cn">BN96-43194D</span>
+                <p class="item-model"><b>Model:</b> SE650-130</p>
+                <p class="item-sap"><b>SAP:</b> 4010221167B</p>
+                <p class="item-desc"><i>ASSY STAND P-COVER BODY;27SE650,ABS+PET,</i></p>
+                <div class="ca">
+                    <button class="btn bb" onclick="_edt(4)">Sửa</button>
+                    <button class="btn br" onclick="_del(4)">Xóa</button>
+                </div></div><div class="dc"><span class="cn">BN96-51947A</span>
+                <p class="item-model"><b>Model:</b> 32TU87F</p>
+                <p class="item-sap"><b>SAP:</b> 4010221068B</p>
+                <p class="item-desc"><i>ASSY STAND P-COVER NECK;32TU87F,ABS+GF15</i></p>
+                <div class="ca">
+                    <button class="btn bb" onclick="_edt(5)">Sửa</button>
+                    <button class="btn br" onclick="_del(5)">Xóa</button>
+                </div></div><div class="dc"><span class="cn">BN96-51948A</span>
+                <p class="item-model"><b>Model:</b> 32TU87F</p>
+                <p class="item-sap"><b>SAP:</b> 4010221069B</p>
+                <p class="item-desc"><i>ASSY STAND P-COVER TOP;32TU87F,CR-SPCC,N</i></p>
+                <div class="ca">
+                    <button class="btn bb" onclick="_edt(6)">Sửa</button>
+                    <button class="btn br" onclick="_del(6)">Xóa</button>
+                </div></div><div class="dc"><span class="cn">BN96-52531C</span>
+                <p class="item-model"><b>Model:</b> 32S70A</p>
+                <p class="item-sap"><b>SAP:</b> 4010221185I</p>
+                <p class="item-desc"><i>ASSY STAND P-COVER TOP;49G95T,ABS,BK0007</i></p>
+                <div class="ca">
+                    <button class="btn bb" onclick="_edt(7)">Sửa</button>
+                    <button class="btn br" onclick="_del(7)">Xóa</button>
+                </div></div><div class="dc"><span class="cn">BN83-21799A</span>
+                <p class="item-model"><b>Model:</b> 32S70A</p>
+                <p class="item-sap"><b>SAP:</b> 4010221185O</p>
+                <p class="item-desc"><i>DP-ASSY STAND P-COVER NECK;BN96-52531C</i></p>
+                <div class="ca">
+                    <button class="btn bb" onclick="_edt(8)">Sửa</button>
+                    <button class="btn br" onclick="_del(8)">Xóa</button>
+                </div></div><div class="dc"><span class="cn">BN96-52531E</span>
+                <p class="item-model"><b>Model:</b> 32M51A</p>
+                <p class="item-sap"><b>SAP:</b> 4010221185N</p>
+                <p class="item-desc"><i>ASSY STAND P-COVER NECK;32M51A,ABS,WHITE</i></p>
+                <div class="ca">
+                    <button class="btn bb" onclick="_edt(9)">Sửa</button>
+                    <button class="btn br" onclick="_del(9)">Xóa</button>
+                </div></div><div class="dc"><span class="cn">BN96-53717A</span>
+                <p class="item-model"><b>Model:</b> 43M70A</p>
+                <p class="item-sap"><b>SAP:</b> 4010221380C</p>
+                <p class="item-desc"><i>ASSY STAND P-COVER NECK;43M70A,PP+GF40%,</i></p>
+                <div class="ca">
+                    <button class="btn bb" onclick="_edt(10)">Sửa</button>
+                    <button class="btn br" onclick="_del(10)">Xóa</button>
+                </div></div><div class="dc"><span class="cn">BN96-53717E</span>
+                <p class="item-model"><b>Model:</b> 43M70D</p>
+                <p class="item-sap"><b>SAP:</b> 4010221638B</p>
+                <p class="item-desc"><i>ASSY STAND P-COVER NECK;43M70D,PP+GF40%,</i></p>
+                <div class="ca">
+                    <button class="btn bb" onclick="_edt(11)">Sửa</button>
+                    <button class="btn br" onclick="_del(11)">Xóa</button>
+                </div></div><div class="dc"><span class="cn">BN96-53717F</span>
+                <p class="item-model"><b>Model:</b> 43M70D</p>
+                <p class="item-sap"><b>SAP:</b> 4010221638D</p>
+                <p class="item-desc"><i>ASSY STAND P-COVER NECK;43M70D,ABS,WT012</i></p>
+                <div class="ca">
+                    <button class="btn bb" onclick="_edt(12)">Sửa</button>
+                    <button class="btn br" onclick="_del(12)">Xóa</button>
+                </div></div><div class="dc"><span class="cn">BN96-53717B</span>
+                <p class="item-model"><b>Model:</b> 43M70A</p>
+                <p class="item-sap"><b>SAP:</b> 4010221380D</p>
+                <p class="item-desc"><i>ASSY STAND P-COVER NECK;43M70A,PP+GF40%,</i></p>
+                <div class="ca">
+                    <button class="btn bb" onclick="_edt(13)">Sửa</button>
+                    <button class="btn br" onclick="_del(13)">Xóa</button>
+                </div></div><div class="dc"><span class="cn">BN96-53717C</span>
+                <p class="item-model"><b>Model:</b> 43M70B</p>
+                <p class="item-sap"><b>SAP:</b> 4010221576B</p>
+                <p class="item-desc"><i>ASSY STAND P-COVER NECK;43M70B,ABS,WT012</i></p>
+                <div class="ca">
+                    <button class="btn bb" onclick="_edt(14)">Sửa</button>
+                    <button class="btn br" onclick="_del(14)">Xóa</button>
+                </div></div><div class="dc"><span class="cn">BN96-53717G</span>
+                <p class="item-model"><b>Model:</b> 43M70A</p>
+                <p class="item-sap"><b>SAP:</b> 4010221659B</p>
+                <p class="item-desc"><i>ASSY STAND P-COVER NECK;43M70A,CR-SPCC,B</i></p>
+                <div class="ca">
+                    <button class="btn bb" onclick="_edt(15)">Sửa</button>
+                    <button class="btn br" onclick="_del(15)">Xóa</button>
+                </div></div><div class="dc"><span class="cn">BN96-56203A</span>
+                <p class="item-model"><b>Model:</b> 43G70NC</p>
+                <p class="item-sap"><b>SAP:</b> 4010121037A</p>
+                <p class="item-desc"><i>ASSY STAND P-COVER NECK;43G70NC,PC+ABS,W</i></p>
+                <div class="ca">
+                    <button class="btn bb" onclick="_edt(16)">Sửa</button>
+                    <button class="btn br" onclick="_del(16)">Xóa</button>
+                </div></div><div class="dc"><span class="cn">BN96-53235A</span>
+                <p class="item-model"><b>Model:</b> 34S60A</p>
+                <p class="item-sap"><b>SAP:</b> 4010221228L</p>
+                <p class="item-desc"><i>ASSY STAND P-COVER NECK;34S65UA,EGI-SECC</i></p>
+                <div class="ca">
+                    <button class="btn bb" onclick="_edt(17)">Sửa</button>
+                    <button class="btn br" onclick="_del(17)">Xóa</button>
+                </div></div><div class="dc"><span class="cn">BN96-53235B</span>
+                <p class="item-model"><b>Model:</b> 32S60A</p>
+                <p class="item-sap"><b>SAP:</b> 4010221228K</p>
+                <p class="item-desc"><i>ASSY STAND P-COVER NECK;32S60A,EGI-SECC,</i></p>
+                <div class="ca">
+                    <button class="btn bb" onclick="_edt(18)">Sửa</button>
+                    <button class="btn br" onclick="_del(18)">Xóa</button>
+                </div></div><div class="dc"><span class="cn">BN96-53235D</span>
+                <p class="item-model"><b>Model:</b> B800</p>
+                <p class="item-sap"><b>SAP:</b> 4010221228P</p>
+                <p class="item-desc"><i>ASSY STAND P-COVER NECK;MONITOR,ALDC,BLA</i></p>
+                <div class="ca">
+                    <button class="btn bb" onclick="_edt(19)">Sửa</button>
+                    <button class="btn br" onclick="_del(19)">Xóa</button>
+                </div></div><div class="dc"><span class="cn">BN96-53235G</span>
+                <p class="item-model"><b>Model:</b> 32S80TB</p>
+                <p class="item-sap"><b>SAP:</b> 4010221228Y</p>
+                <p class="item-desc"><i>ASSY STAND P-COVER NECK;32S80TB,AI,BLACK</i></p>
+                <div class="ca">
+                    <button class="btn bb" onclick="_edt(20)">Sửa</button>
+                    <button class="btn br" onclick="_del(20)">Xóa</button>
+                </div></div><div class="dc"><span class="cn">BN83-17772A</span>
+                <p class="item-model"><b>Model:</b> 32S60A-DP</p>
+                <p class="item-sap"><b>SAP:</b> 4010221572B</p>
+                <p class="item-desc"><i>DP-ASSY STAND P-COVER NECK;BN96-53235B</i></p>
+                <div class="ca">
+                    <button class="btn bb" onclick="_edt(21)">Sửa</button>
+                    <button class="btn br" onclick="_del(21)">Xóa</button>
+                </div></div><div class="dc"><span class="cn">BN96-53235C</span>
+                <p class="item-model"><b>Model:</b> 27S60A</p>
+                <p class="item-sap"><b>SAP:</b> 4010221228J</p>
+                <p class="item-desc"><i>ASSY STAND P-COVER NECK;27S60A,EGI-SECC,</i></p>
+                <div class="ca">
+                    <button class="btn bb" onclick="_edt(22)">Sửa</button>
+                    <button class="btn br" onclick="_del(22)">Xóa</button>
+                </div></div><div class="dc"><span class="cn">BN96-53235E</span>
+                <p class="item-model"><b>Model:</b> S80PB</p>
+                <p class="item-sap"><b>SAP:</b> 4010221228N</p>
+                <p class="item-desc"><i>ASSY STAND P-COVER NECK;27S80PB,ALDC,BLA</i></p>
+                <div class="ca">
+                    <button class="btn bb" onclick="_edt(23)">Sửa</button>
+                    <button class="btn br" onclick="_del(23)">Xóa</button>
+                </div></div><div class="dc"><span class="cn">BN96-53235F</span>
+                <p class="item-model"><b>Model:</b> 27S80TB</p>
+                <p class="item-sap"><b>SAP:</b> 4010221228V</p>
+                <p class="item-desc"><i>ASSY STAND P-COVER NECK;27S80TB,AI,BLACK</i></p>
+                <div class="ca">
+                    <button class="btn bb" onclick="_edt(24)">Sửa</button>
+                    <button class="btn br" onclick="_del(24)">Xóa</button>
+                </div></div><div class="dc"><span class="cn">BN83-17773A</span>
+                <p class="item-model"><b>Model:</b> 27S60A-DP</p>
+                <p class="item-sap"><b>SAP:</b> 4010221572C</p>
+                <p class="item-desc"><i>DP-ASSY STAND P-COVER NECK;BN96-53235C</i></p>
+                <div class="ca">
+                    <button class="btn bb" onclick="_edt(25)">Sửa</button>
+                    <button class="btn br" onclick="_del(25)">Xóa</button>
+                </div></div><div class="dc"><span class="cn">BN96-53343A</span>
+                <p class="item-model"><b>Model:</b> 24S60A</p>
+                <p class="item-sap"><b>SAP:</b> 4010221228I</p>
+                <p class="item-desc"><i>ASSY STAND P-COVER NECK;24S60A,EGI-SECC,</i></p>
+                <div class="ca">
+                    <button class="btn bb" onclick="_edt(26)">Sửa</button>
+                    <button class="btn br" onclick="_del(26)">Xóa</button>
+                </div></div><div class="dc"><span class="cn">BN83-17774A</span>
+                <p class="item-model"><b>Model:</b> 24S60A-DP</p>
+                <p class="item-sap"><b>SAP:</b> 4010221572A</p>
+                <p class="item-desc"><i>DP-ASSY STAND P-COVER NECK;BN96-53343A</i></p>
+                <div class="ca">
+                    <button class="btn bb" onclick="_edt(27)">Sửa</button>
+                    <button class="btn br" onclick="_del(27)">Xóa</button>
+                </div></div><div class="dc"><span class="cn">BN96-53343B</span>
+                <p class="item-model"><b>Model:</b> 24S60A</p>
+                <p class="item-sap"><b>SAP:</b> 4010221228W</p>
+                <p class="item-desc"><i>ASSY STAND P-COVER NECK;24S60A,PP,BK0020</i></p>
+                <div class="ca">
+                    <button class="btn bb" onclick="_edt(28)">Sửa</button>
+                    <button class="btn br" onclick="_del(28)">Xóa</button>
+                </div></div><div class="dc"><span class="cn">BN96-55375A</span>
+                <p class="item-model"><b>Model:</b> 25G40B</p>
+                <p class="item-sap"><b>SAP:</b> 4010221383G</p>
+                <p class="item-desc"><i>ASSY STAND P-COVER NECK;25G40B,ABS,BK000</i></p>
+                <div class="ca">
+                    <button class="btn bb" onclick="_edt(29)">Sửa</button>
+                    <button class="btn br" onclick="_del(29)">Xóa</button>
+                </div></div><div class="dc"><span class="cn">BN83-19655A</span>
+                <p class="item-model"><b>Model:</b> 25G40B-DP</p>
+                <p class="item-sap"><b>SAP:</b> 4010221383N</p>
+                <p class="item-desc"><i>DP-ASSY STAND P-COVER NECK;BN96-55375A</i></p>
+                <div class="ca">
+                    <button class="btn bb" onclick="_edt(30)">Sửa</button>
+                    <button class="btn br" onclick="_del(30)">Xóa</button>
+                </div></div><div class="dc"><span class="cn">BN83-19656A</span>
+                <p class="item-model"><b>Model:</b> 27G40B-DP</p>
+                <p class="item-sap"><b>SAP:</b> 4010221383O</p>
+                <p class="item-desc"><i>DP-ASSY STAND P-COVER NECK;BN96-55375B</i></p>
+                <div class="ca">
+                    <button class="btn bb" onclick="_edt(31)">Sửa</button>
+                    <button class="btn br" onclick="_del(31)">Xóa</button>
+                </div></div><div class="dc"><span class="cn">BN96-55375B</span>
+                <p class="item-model"><b>Model:</b> 27G40B</p>
+                <p class="item-sap"><b>SAP:</b> 4010221383H</p>
+                <p class="item-desc"><i>ASSY STAND P-COVER NECK;27G40B,ABS,BK000</i></p>
+                <div class="ca">
+                    <button class="btn bb" onclick="_edt(32)">Sửa</button>
+                    <button class="btn br" onclick="_del(32)">Xóa</button>
+                </div></div><div class="dc"><span class="cn">BN96-55005A</span>
+                <p class="item-model"><b>Model:</b> 32G70B</p>
+                <p class="item-sap"><b>SAP:</b> 4010221382N</p>
+                <p class="item-desc"><i>ASSY STAND P-COVER NECK;32G70B,ABS,BK000</i></p>
+                <div class="ca">
+                    <button class="btn bb" onclick="_edt(33)">Sửa</button>
+                    <button class="btn br" onclick="_del(33)">Xóa</button>
+                </div></div><div class="dc"><span class="cn">BN96-55005B</span>
+                <p class="item-model"><b>Model:</b> 27G65B</p>
+                <p class="item-sap"><b>SAP:</b> 4010221382O</p>
+                <p class="item-desc"><i>ASSY STAND P-COVER NECK;27G65B,ABS,BK000</i></p>
+                <div class="ca">
+                    <button class="btn bb" onclick="_edt(34)">Sửa</button>
+                    <button class="btn br" onclick="_del(34)">Xóa</button>
+                </div></div><div class="dc"><span class="cn">BN96-55005C</span>
+                <p class="item-model"><b>Model:</b> G75NB</p>
+                <p class="item-sap"><b>SAP:</b> 4010221382H</p>
+                <p class="item-desc"><i>ASSY STAND P-COVER NECK;32G75NB,ABS,BK00</i></p>
+                <div class="ca">
+                    <button class="btn bb" onclick="_edt(35)">Sửa</button>
+                    <button class="btn br" onclick="_del(35)">Xóa</button>
+                </div></div><div class="dc"><span class="cn">BN96-55005D</span>
+                <p class="item-model"><b>Model:</b> 32G65B</p>
+                <p class="item-sap"><b>SAP:</b> 4010221464C</p>
+                <p class="item-desc"><i>ASSY STAND P-COVER NECK;32G65B,ABS,BK000</i></p>
+                <div class="ca">
+                    <button class="btn bb" onclick="_edt(36)">Sửa</button>
+                    <button class="btn br" onclick="_del(36)">Xóa</button>
+                </div></div><div class="dc"><span class="cn">BN96-55005E</span>
+                <p class="item-model"><b>Model:</b> 28G70B</p>
+                <p class="item-sap"><b>SAP:</b> 4010221382S</p>
+                <p class="item-desc"><i>ASSY STAND P-COVER NECK;28G70B,ABS,BK000</i></p>
+                <div class="ca">
+                    <button class="btn bb" onclick="_edt(37)">Sửa</button>
+                    <button class="btn br" onclick="_del(37)">Xóa</button>
+                </div></div><div class="dc"><span class="cn">BN96-55380A</span>
+                <p class="item-model"><b>Model:</b> 32G85NB</p>
+                <p class="item-sap"><b>SAP:</b> 4010221382G</p>
+                <p class="item-desc"><i>ASSY STAND P-COVER NECK;32G85NB,ABS,WHIT</i></p>
+                <div class="ca">
+                    <button class="btn bb" onclick="_edt(38)">Sửa</button>
+                    <button class="btn br" onclick="_del(38)">Xóa</button>
+                </div></div><div class="dc"><span class="cn">BN96-56965A</span>
+                <p class="item-model"><b>Model:</b> 32M80C</p>
+                <p class="item-sap"><b>SAP:</b> 4010221571B</p>
+                <p class="item-desc"><i>ASSY STAND P-COVER NECK;32M80C,PC+ABS,WT</i></p>
+                <div class="ca">
+                    <button class="btn bb" onclick="_edt(39)">Sửa</button>
+                    <button class="btn br" onclick="_del(39)">Xóa</button>
+                </div></div><div class="dc"><span class="cn">BN83-22043A</span>
+                <p class="item-model"><b>Model:</b> -</p>
+                <p class="item-sap"><b>SAP:</b> 4010221571A</p>
+                <p class="item-desc"><i>DP-ASSY STAND P-COVER NECK;BN96-56965A</i></p>
+                <div class="ca">
+                    <button class="btn bb" onclick="_edt(40)">Sửa</button>
+                    <button class="btn br" onclick="_del(40)">Xóa</button>
+                </div></div><div class="dc"><span class="cn">BN96-56965B</span>
+                <p class="item-model"><b>Model:</b> 32M80C</p>
+                <p class="item-sap"><b>SAP:</b> 4010221571C</p>
+                <p class="item-desc"><i>ASSY STAND P-COVER NECK;32M80C,PC+ABS,RD</i></p>
+                <div class="ca">
+                    <button class="btn bb" onclick="_edt(41)">Sửa</button>
+                    <button class="btn br" onclick="_del(41)">Xóa</button>
+                </div></div><div class="dc"><span class="cn">BN96-56965C</span>
+                <p class="item-model"><b>Model:</b> 32M80C</p>
+                <p class="item-sap"><b>SAP:</b> 4010221571D</p>
+                <p class="item-desc"><i>ASSY STAND P-COVER NECK;32M80C,PC+ABS,BL</i></p>
+                <div class="ca">
+                    <button class="btn bb" onclick="_edt(42)">Sửa</button>
+                    <button class="btn br" onclick="_del(42)">Xóa</button>
+                </div></div><div class="dc"><span class="cn">BN96-56965D</span>
+                <p class="item-model"><b>Model:</b> 32M80C</p>
+                <p class="item-sap"><b>SAP:</b> 4010221571E</p>
+                <p class="item-desc"><i>ASSY STAND P-COVER NECK;32M80C,PC+ABS,GR</i></p>
+                <div class="ca">
+                    <button class="btn bb" onclick="_edt(43)">Sửa</button>
+                    <button class="btn br" onclick="_del(43)">Xóa</button>
+                </div></div><div class="dc"><span class="cn">BN96-56022A</span>
+                <p class="item-model"><b>Model:</b> 34G85SB</p>
+                <p class="item-sap"><b>SAP:</b> 4010221490D</p>
+                <p class="item-desc"><i>ASSY STAND P-COVER NECK;34G85SB,ABS,GY03</i></p>
+                <div class="ca">
+                    <button class="btn bb" onclick="_edt(44)">Sửa</button>
+                    <button class="btn br" onclick="_del(44)">Xóa</button>
+                </div></div><div class="dc"><span class="cn">BN96-57316A</span>
+                <p class="item-model"><b>Model:</b> 49G95SC</p>
+                <p class="item-sap"><b>SAP:</b> 4010221579C</p>
+                <p class="item-desc"><i>ASSY STAND P-COVER NECK;49G95SC,ABS,GY03</i></p>
+                <div class="ca">
+                    <button class="btn bb" onclick="_edt(45)">Sửa</button>
+                    <button class="btn br" onclick="_del(45)">Xóa</button>
+                </div></div><div class="dc"><span class="cn">BN96-57368A</span>
+                <p class="item-model"><b>Model:</b> 27M80C</p>
+                <p class="item-sap"><b>SAP:</b> 4010221580C</p>
+                <p class="item-desc"><i>ASSY STAND P-COVER NECK;27M80C,PC+ABS,WT</i></p>
+                <div class="ca">
+                    <button class="btn bb" onclick="_edt(46)">Sửa</button>
+                    <button class="btn br" onclick="_del(46)">Xóa</button>
+                </div></div><div class="dc"><span class="cn">BN96-57368B</span>
+                <p class="item-model"><b>Model:</b> 27S90PC</p>
+                <p class="item-sap"><b>SAP:</b> 4010221581D</p>
+                <p class="item-desc"><i>ASSY STAND P-COVER NECK;27S90PC,PC+ABS,W</i></p>
+                <div class="ca">
+                    <button class="btn bb" onclick="_edt(47)">Sửa</button>
+                    <button class="btn br" onclick="_del(47)">Xóa</button>
+                </div></div><div class="dc"><span class="cn">BN96-57368C</span>
+                <p class="item-model"><b>Model:</b> 27M80C</p>
+                <p class="item-sap"><b>SAP:</b> 4010221580F</p>
+                <p class="item-desc"><i>ASSY STAND P-COVER NECK;27M80C,PC+ABS,BL</i></p>
+                <div class="ca">
+                    <button class="btn bb" onclick="_edt(48)">Sửa</button>
+                    <button class="btn br" onclick="_del(48)">Xóa</button>
+                </div></div><div class="dc"><span class="cn">BN96-57368D</span>
+                <p class="item-model"><b>Model:</b> 27M80C</p>
+                <p class="item-sap"><b>SAP:</b> 4010221580D</p>
+                <p class="item-desc"><i>ASSY STAND P-COVER NECK;27M80C,PC+ABS,GR</i></p>
+                <div class="ca">
+                    <button class="btn bb" onclick="_edt(49)">Sửa</button>
+                    <button class="btn br" onclick="_del(49)">Xóa</button>
+                </div></div><div class="dc"><span class="cn">BN96-57368E</span>
+                <p class="item-model"><b>Model:</b> 27M80C</p>
+                <p class="item-sap"><b>SAP:</b> 4010221580E</p>
+                <p class="item-desc"><i>ASSY STAND P-COVER NECK;27M80C,PC+ABS,RD</i></p>
+                <div class="ca">
+                    <button class="btn bb" onclick="_edt(50)">Sửa</button>
+                    <button class="btn br" onclick="_del(50)">Xóa</button>
+                </div></div><div class="dc"><span class="cn">BN96-57349A</span>
+                <p class="item-model"><b>Model:</b> 57G95NC</p>
+                <p class="item-sap"><b>SAP:</b> 4010221578B</p>
+                <p class="item-desc"><i>ASSY STAND P-COVER NECK;57G95NC,ALDC12,B</i></p>
+                <div class="ca">
+                    <button class="btn bb" onclick="_edt(51)">Sửa</button>
+                    <button class="btn br" onclick="_del(51)">Xóa</button>
+                </div></div><div class="dc"><span class="cn">BN96-57524A</span>
+                <p class="item-model"><b>Model:</b> 49G93SC</p>
+                <p class="item-sap"><b>SAP:</b> 4010221582B</p>
+                <p class="item-desc"><i>ASSY STAND P-COVER NECK;49G93SC,ABS,GY03</i></p>
+                <div class="ca">
+                    <button class="btn bb" onclick="_edt(52)">Sửa</button>
+                    <button class="btn br" onclick="_del(52)">Xóa</button>
+                </div></div><div class="dc"><span class="cn">BN96-58157A</span>
+                <p class="item-model"><b>Model:</b> 49G95C</p>
+                <p class="item-sap"><b>SAP:</b> 4010221602B</p>
+                <p class="item-desc"><i>ASSY STAND P-COVER NECK;49G95C,ALDC12,BL</i></p>
+                <div class="ca">
+                    <button class="btn bb" onclick="_edt(53)">Sửa</button>
+                    <button class="btn br" onclick="_del(53)">Xóa</button>
+                </div></div><div class="dc"><span class="cn">BN96-58659A</span>
+                <p class="item-model"><b>Model:</b> 27G50D</p>
+                <p class="item-sap"><b>SAP:</b> 4010221603B</p>
+                <p class="item-desc"><i>ASSY STAND P-COVER NECK;27G50D,ABS,BK000</i></p>
+                <div class="ca">
+                    <button class="btn bb" onclick="_edt(54)">Sửa</button>
+                    <button class="btn br" onclick="_del(54)">Xóa</button>
+                </div></div><div class="dc"><span class="cn">BN96-58659B</span>
+                <p class="item-model"><b>Model:</b> 32G50D</p>
+                <p class="item-sap"><b>SAP:</b> 4010221605B</p>
+                <p class="item-desc"><i>ASSY STAND P-COVER NECK;32G50D,ABS,BK000</i></p>
+                <div class="ca">
+                    <button class="btn bb" onclick="_edt(55)">Sửa</button>
+                    <button class="btn br" onclick="_del(55)">Xóa</button>
+                </div></div><div class="dc"><span class="cn">BN83-24119A</span>
+                <p class="item-model"><b>Model:</b> ST40</p>
+                <p class="item-sap"><b>SAP:</b> 4010221108F</p>
+                <p class="item-desc"><i>DP-ASSY STAND P-COVER BODY;BN96-43194G</i></p>
+                <div class="ca">
+                    <button class="btn bb" onclick="_edt(56)">Sửa</button>
+                    <button class="btn br" onclick="_del(56)">Xóa</button>
+                </div></div><div class="dc"><span class="cn">BN83-14370A</span>
+                <p class="item-model"><b>Model:</b> -</p>
+                <p class="item-sap"><b>SAP:</b> 4190110051A</p>
+                <p class="item-desc"><i>DP-COVER-STAND BOTTOM;BN63-09999A</i></p>
+                <div class="ca">
+                    <button class="btn bb" onclick="_edt(57)">Sửa</button>
+                    <button class="btn br" onclick="_del(57)">Xóa</button>
+                </div></div><div class="dc"><span class="cn">BN83-20168A</span>
+                <p class="item-model"><b>Model:</b> -</p>
+                <p class="item-sap"><b>SAP:</b> 4190110050A</p>
+                <p class="item-desc"><i>DP-COVER-STAND TOP;BN63-09998A</i></p>
+                <div class="ca">
+                    <button class="btn bb" onclick="_edt(58)">Sửa</button>
+                    <button class="btn br" onclick="_del(58)">Xóa</button>
+                </div></div><div class="dc"><span class="cn">BN96-58969A</span>
+                <p class="item-model"><b>Model:</b> 27G60SD</p>
+                <p class="item-sap"><b>SAP:</b> 4010221615C</p>
+                <p class="item-desc"><i>ASSY STAND P-COVER NECK;27G60SD,ABS,GY03</i></p>
+                <div class="ca">
+                    <button class="btn bb" onclick="_edt(59)">Sửa</button>
+                    <button class="btn br" onclick="_del(59)">Xóa</button>
+                </div></div><div class="dc"><span class="cn">BN96-58969B</span>
+                <p class="item-model"><b>Model:</b> 32G80SD</p>
+                <p class="item-sap"><b>SAP:</b> 4010221615D</p>
+                <p class="item-desc"><i>ASSY STAND P-COVER NECK;32G80SD,ABS,GY03</i></p>
+                <div class="ca">
+                    <button class="btn bb" onclick="_edt(60)">Sửa</button>
+                    <button class="btn br" onclick="_del(60)">Xóa</button>
+                </div></div><div class="dc"><span class="cn">BN96-59011A</span>
+                <p class="item-model"><b>Model:</b> 27S60D</p>
+                <p class="item-sap"><b>SAP:</b> 4010221616C</p>
+                <p class="item-desc"><i>ASSY STAND P-COVER NECK;27S60D,ABS,BK000</i></p>
+                <div class="ca">
+                    <button class="btn bb" onclick="_edt(61)">Sửa</button>
+                    <button class="btn br" onclick="_del(61)">Xóa</button>
+                </div></div><div class="dc"><span class="cn">BN96-59011B</span>
+                <p class="item-model"><b>Model:</b> 32S60D</p>
+                <p class="item-sap"><b>SAP:</b> 4010221624C</p>
+                <p class="item-desc"><i>ASSY STAND P-COVER NECK;32S60D,ABS,BK000</i></p>
+                <div class="ca">
+                    <button class="btn bb" onclick="_edt(62)">Sửa</button>
+                    <button class="btn br" onclick="_del(62)">Xóa</button>
+                </div></div><div class="dc"><span class="cn">BN96-59011C</span>
+                <p class="item-model"><b>Model:</b> 24S60D</p>
+                <p class="item-sap"><b>SAP:</b> 4010221620B</p>
+                <p class="item-desc"><i>ASSY STAND P-COVER NECK;24S60D,ABS,BK000</i></p>
+                <div class="ca">
+                    <button class="btn bb" onclick="_edt(63)">Sửa</button>
+                    <button class="btn br" onclick="_del(63)">Xóa</button>
+                </div></div><div class="dc"><span class="cn">BN96-59011D</span>
+                <p class="item-model"><b>Model:</b> 27S60D</p>
+                <p class="item-sap"><b>SAP:</b> 4010221624G</p>
+                <p class="item-desc"><i>ASSY STAND P-COVER NECK;27S60D,ABS,BK000</i></p>
+                <div class="ca">
+                    <button class="btn bb" onclick="_edt(64)">Sửa</button>
+                    <button class="btn br" onclick="_del(64)">Xóa</button>
+                </div></div><div class="dc"><span class="cn">BN96-59011E</span>
+                <p class="item-model"><b>Model:</b> 32S60D</p>
+                <p class="item-sap"><b>SAP:</b> 4010221624E</p>
+                <p class="item-desc"><i>ASSY STAND P-COVER NECK;32S60D,ABS,BK000</i></p>
+                <div class="ca">
+                    <button class="btn bb" onclick="_edt(65)">Sửa</button>
+                    <button class="btn br" onclick="_del(65)">Xóa</button>
+                </div></div><div class="dc"><span class="cn">BN96-59250A</span>
+                <p class="item-model"><b>Model:</b> 27S70D</p>
+                <p class="item-sap"><b>SAP:</b> 4010221627E</p>
+                <p class="item-desc"><i>ASSY STAND P-COVER NECK;27S70D,ABS,BK000</i></p>
+                <div class="ca">
+                    <button class="btn bb" onclick="_edt(66)">Sửa</button>
+                    <button class="btn br" onclick="_del(66)">Xóa</button>
+                </div></div><div class="dc"><span class="cn">BN96-59250B</span>
+                <p class="item-model"><b>Model:</b> 32S70D</p>
+                <p class="item-sap"><b>SAP:</b> 4010221627G</p>
+                <p class="item-desc"><i>ASSY STAND P-COVER NECK;32S70D,ABS,BK000</i></p>
+                <div class="ca">
+                    <button class="btn bb" onclick="_edt(67)">Sửa</button>
+                    <button class="btn br" onclick="_del(67)">Xóa</button>
+                </div></div><div class="dc"><span class="cn">BN96-59250D</span>
+                <p class="item-model"><b>Model:</b> 32S71D</p>
+                <p class="item-sap"><b>SAP:</b> 4010221627H</p>
+                <p class="item-desc"><i>ASSY STAND P-COVER NECK;32S70D,ABS,WT014</i></p>
+                <div class="ca">
+                    <button class="btn bb" onclick="_edt(68)">Sửa</button>
+                    <button class="btn br" onclick="_del(68)">Xóa</button>
+                </div></div><div class="dc"><span class="cn">BN96-60232A</span>
+                <p class="item-model"><b>Model:</b> 27S40GD</p>
+                <p class="item-sap"><b>SAP:</b> 4010221644D</p>
+                <p class="item-desc"><i>ASSY STAND P-COVER NECK;27S40GD,PP+GF35%</i></p>
+                <div class="ca">
+                    <button class="btn bb" onclick="_edt(69)">Sửa</button>
+                    <button class="btn br" onclick="_del(69)">Xóa</button>
+                </div></div><div class="dc"><span class="cn">BN96-60232B</span>
+                <p class="item-model"><b>Model:</b> 22S40GD</p>
+                <p class="item-sap"><b>SAP:</b> 4010221644F</p>
+                <p class="item-desc"><i>ASSY STAND P-COVER NECK;S40GD,PP+GF35%+P</i></p>
+                <div class="ca">
+                    <button class="btn bb" onclick="_edt(70)">Sửa</button>
+                    <button class="btn br" onclick="_del(70)">Xóa</button>
+                </div></div><div class="dc"><span class="cn">BN96-60232C</span>
+                <p class="item-model"><b>Model:</b> 24S40GD</p>
+                <p class="item-sap"><b>SAP:</b> 4010221644E</p>
+                <p class="item-desc"><i>ASSY STAND P-COVER NECK;S40GD,PP+GF35%+P</i></p>
+                <div class="ca">
+                    <button class="btn bb" onclick="_edt(71)">Sửa</button>
+                    <button class="btn br" onclick="_del(71)">Xóa</button>
+                </div></div><div class="dc"><span class="cn">BN96-60677A</span>
+                <p class="item-model"><b>Model:</b> 37S80D</p>
+                <p class="item-sap"><b>SAP:</b> 4010221651B</p>
+                <p class="item-desc"><i>ASSY STAND P-COVER NECK;37S80D,ABS,BK000</i></p>
+                <div class="ca">
+                    <button class="btn bb" onclick="_edt(72)">Sửa</button>
+                    <button class="btn br" onclick="_del(72)">Xóa</button>
+                </div></div><div class="dc"><span class="cn">BN96-60677B</span>
+                <p class="item-model"><b>Model:</b> 37S80UD</p>
+                <p class="item-sap"><b>SAP:</b> 4010221651D</p>
+                <p class="item-desc"><i>ASSY STAND P-COVER NECK;37S80UD,INDIA</i></p>
+                <div class="ca">
+                    <button class="btn bb" onclick="_edt(73)">Sửa</button>
+                    <button class="btn br" onclick="_del(73)">Xóa</button>
+                </div></div><div class="dc"><span class="cn">BN96-60820A</span>
+                <p class="item-model"><b>Model:</b> 27G90XF</p>
+                <p class="item-sap"><b>SAP:</b> 4010221650B</p>
+                <p class="item-desc"><i>ASSY STAND P-COVER NECK;27G90XF,PC+ABS,W</i></p>
+                <div class="ca">
+                    <button class="btn bb" onclick="_edt(74)">Sửa</button>
+                    <button class="btn br" onclick="_del(74)">Xóa</button>
+                </div></div><div class="dc"><span class="cn">BN96-53235J</span>
+                <p class="item-model"><b>Model:</b> 32S60A</p>
+                <p class="item-sap"><b>SAP:</b> 4010221662G</p>
+                <p class="item-desc"><i>ASSY STAND P-COVER NECK;32S80PB,AI,Natur</i></p>
+                <div class="ca">
+                    <button class="btn bb" onclick="_edt(75)">Sửa</button>
+                    <button class="btn br" onclick="_del(75)">Xóa</button>
+                </div></div><div class="dc"><span class="cn">BN96-60232D</span>
+                <p class="item-model"><b>Model:</b> 22S40GD</p>
+                <p class="item-sap"><b>SAP:</b> 4010221644L</p>
+                <p class="item-desc"><i>ASSY STAND P-COVER NECK;22S40GD,HIPS,BK0</i></p>
+                <div class="ca">
+                    <button class="btn bb" onclick="_edt(76)">Sửa</button>
+                    <button class="btn br" onclick="_del(76)">Xóa</button>
+                </div></div><div class="dc"><span class="cn">BN96-60232E</span>
+                <p class="item-model"><b>Model:</b> 24S40GD</p>
+                <p class="item-sap"><b>SAP:</b> 4010221644K</p>
+                <p class="item-desc"><i>ASSY STAND P-COVER NECK;24S40GD,HIPS,BK0</i></p>
+                <div class="ca">
+                    <button class="btn bb" onclick="_edt(77)">Sửa</button>
+                    <button class="btn br" onclick="_del(77)">Xóa</button>
+                </div></div><div class="dc"><span class="cn">BN96-60232F</span>
+                <p class="item-model"><b>Model:</b> 27S40GD</p>
+                <p class="item-sap"><b>SAP:</b> 4010221644J</p>
+                <p class="item-desc"><i>ASSY STAND P-COVER NECK;27S40GD,HIPS,BK0</i></p>
+                <div class="ca">
+                    <button class="btn bb" onclick="_edt(78)">Sửa</button>
+                    <button class="btn br" onclick="_del(78)">Xóa</button>
+                </div></div><div class="dc"><span class="cn">BN96-53235H</span>
+                <p class="item-model"><b>Model:</b> 27S80PB</p>
+                <p class="item-sap"><b>SAP:</b> 4010221662F</p>
+                <p class="item-desc"><i>ASSY STAND P-COVER NECK;27S80PB,AI,Natur</i></p>
+                <div class="ca">
+                    <button class="btn bb" onclick="_edt(79)">Sửa</button>
+                    <button class="btn br" onclick="_del(79)">Xóa</button>
+                </div></div><div class="dc"><span class="cn">BN96-59011F</span>
+                <p class="item-model"><b>Model:</b> 24S60D</p>
+                <p class="item-sap"><b>SAP:</b> 4010221624H</p>
+                <p class="item-desc"><i>ASSY STAND P-COVER NECK;24S60D,ABS,BK000</i></p>
+                <div class="ca">
+                    <button class="btn bb" onclick="_edt(80)">Sửa</button>
+                    <button class="btn br" onclick="_del(80)">Xóa</button>
+                </div></div><div class="dc"><span class="cn">BN96-56965E</span>
+                <p class="item-model"><b>Model:</b> 32M80B</p>
+                <p class="item-sap"><b>SAP:</b> 4010221658B</p>
+                <p class="item-desc"><i>ASSY STAND P-COVER NECK;32M80F,PC+ABS,WT</i></p>
+                <div class="ca">
+                    <button class="btn bb" onclick="_edt(81)">Sửa</button>
+                    <button class="btn br" onclick="_del(81)">Xóa</button>
+                </div></div><div class="dc"><span class="cn">BN96-58157C</span>
+                <p class="item-model"><b>Model:</b> 49G95C</p>
+                <p class="item-sap"><b>SAP:</b> 4010221602F</p>
+                <p class="item-desc"><i>ASSY STAND P-COVER NECK;49S95UF,ABS,BK00</i></p>
+                <div class="ca">
+                    <button class="btn bb" onclick="_edt(82)">Sửa</button>
+                    <button class="btn br" onclick="_del(82)">Xóa</button>
+                </div></div><div class="dc"><span class="cn">BN96-52531G</span>
+                <p class="item-model"><b>Model:</b> 32M70F</p>
+                <p class="item-sap"><b>SAP:</b> 4010221185P</p>
+                <p class="item-desc"><i>ASSY STAND P-COVER NECK;32M70F,ABS,BLACK</i></p>
+                <div class="ca">
+                    <button class="btn bb" onclick="_edt(83)">Sửa</button>
+                    <button class="btn br" onclick="_del(83)">Xóa</button>
+                </div></div><div class="dc"><span class="cn">BN96-52531H</span>
+                <p class="item-model"><b>Model:</b> 32M71F</p>
+                <p class="item-sap"><b>SAP:</b> 4010221185Q</p>
+                <p class="item-desc"><i>ASSY STAND P-COVER NECK;32M71F,ABS,WHITE</i></p>
+                <div class="ca">
+                    <button class="btn bb" onclick="_edt(84)">Sửa</button>
+                    <button class="btn br" onclick="_del(84)">Xóa</button>
+                </div></div><div class="dc"><span class="cn">BN96-53717H</span>
+                <p class="item-model"><b>Model:</b> 43M70F</p>
+                <p class="item-sap"><b>SAP:</b> 4010221638E</p>
+                <p class="item-desc"><i>ASSY STAND P-COVER NECK;43M70F,ABS+PET,B</i></p>
+                <div class="ca">
+                    <button class="btn bb" onclick="_edt(85)">Sửa</button>
+                    <button class="btn br" onclick="_del(85)">Xóa</button>
+                </div></div><div class="dc"><span class="cn">BN96-53717J</span>
+                <p class="item-model"><b>Model:</b> 43M71F</p>
+                <p class="item-sap"><b>SAP:</b> 4010221638F</p>
+                <p class="item-desc"><i>ASSY STAND P-COVER NECK;43M71F,ABS,WT012</i></p>
+                <div class="ca">
+                    <button class="btn bb" onclick="_edt(86)">Sửa</button>
+                    <button class="btn br" onclick="_del(86)">Xóa</button>
+                </div></div><div class="dc"><span class="cn">BN96-56965F</span>
+                <p class="item-model"><b>Model:</b> 32M80F</p>
+                <p class="item-sap"><b>SAP:</b> 4010221658C</p>
+                <p class="item-desc"><i>ASSY STAND P-COVER NECK;32M80F,PC+ABS,WT</i></p>
+                <div class="ca">
+                    <button class="btn bb" onclick="_edt(87)">Sửa</button>
+                    <button class="btn br" onclick="_del(87)">Xóa</button>
+                </div></div><div class="dc"><span class="cn">BN96-58157B</span>
+                <p class="item-model"><b>Model:</b> 49G95C</p>
+                <p class="item-sap"><b>SAP:</b> 4010221602D</p>
+                <p class="item-desc"><i>ASSY STAND P-COVER NECK;G95C,ABS,BK0008,</i></p>
+                <div class="ca">
+                    <button class="btn bb" onclick="_edt(88)">Sửa</button>
+                    <button class="btn br" onclick="_del(88)">Xóa</button>
+                </div></div><div class="dc"><span class="cn">BN96-62495A</span>
+                <p class="item-model"><b>Model:</b> 37G75F</p>
+                <p class="item-sap"><b>SAP:</b> 4010221660B</p>
+                <p class="item-desc"><i>ASSY STAND P-COVER NECK;37G75F,HIPS,BK00</i></p>
+                <div class="ca">
+                    <button class="btn bb" onclick="_edt(89)">Sửa</button>
+                    <button class="btn br" onclick="_del(89)">Xóa</button>
+                </div></div><div class="dc"><span class="cn">BN96-62498A</span>
+                <p class="item-model"><b>Model:</b> 40G75F</p>
+                <p class="item-sap"><b>SAP:</b> 4010221661B</p>
+                <p class="item-desc"><i>ASSY STAND P-COVER NECK;40G75F,HIPS,BK00</i></p>
+                <div class="ca">
+                    <button class="btn bb" onclick="_edt(90)">Sửa</button>
+                    <button class="btn br" onclick="_del(90)">Xóa</button>
+                </div></div><div class="dc"><span class="cn">BN96-62495B</span>
+                <p class="item-model"><b>Model:</b> 37G75F</p>
+                <p class="item-sap"><b>SAP:</b> 4010221660D</p>
+                <p class="item-desc"><i>ASSY STAND P-COVER NECK;37G75F,HIPS,BK00</i></p>
+                <div class="ca">
+                    <button class="btn bb" onclick="_edt(91)">Sửa</button>
+                    <button class="btn br" onclick="_del(91)">Xóa</button>
+                </div></div><div class="dc"><span class="cn">BN96-62498B</span>
+                <p class="item-model"><b>Model:</b> 40G75F</p>
+                <p class="item-sap"><b>SAP:</b> 4010221661D</p>
+                <p class="item-desc"><i>ASSY STAND P-COVER NECK;40G75F,HIPS,BK00</i></p>
+                <div class="ca">
+                    <button class="btn bb" onclick="_edt(92)">Sửa</button>
+                    <button class="btn br" onclick="_del(92)">Xóa</button>
+                </div></div><div class="dc"><span class="cn">BN96-48369B</span>
+                <p class="item-model"><b>Model:</b> -</p>
+                <p class="item-sap"><b>SAP:</b> -</p>
+                <p class="item-desc"><i>ASSY STAND P-COVER BODY;32UR591C,ABS,WT0127,EUROPE/NETHERLANDS</i></p>
+                <div class="ca">
+                    <button class="btn bb" onclick="_edt(93)">Sửa</button>
+                    <button class="btn br" onclick="_del(93)">Xóa</button>
+                </div></div><div class="dc"><span class="cn">BN96-44129A</span>
+                <p class="item-model"><b>Model:</b> -</p>
+                <p class="item-sap"><b>SAP:</b> -</p>
+                <p class="item-desc"><i>ASSY STAND P-COVER BODY;49HG90,ABS,GY0318,SILVER SPRAY,EUROPE/NETHERLAND</i></p>
+                <div class="ca">
+                    <button class="btn bb" onclick="_edt(94)">Sửa</button>
+                    <button class="btn br" onclick="_del(94)">Xóa</button>
+                </div></div></div>
 
     <div class="cp">
         <button class="btn bb" onclick="document.getElementById('fi').click()">📥 Nhập Excel</button>
         <button class="btn bg" onclick="_ex()">📤 Xuất Excel</button>
         <button class="btn bb" onclick="_add()">➕ Thêm Mới</button>
-        <button class="btn bd" onclick="_sv()">💾 Lưu &amp; Đóng Gói</button>
-        <button class="btn br" onclick="_clr()">🧹 Xóa Trắng</button>
-        <button class="btn br" onclick="_lck()">🔒 KHÓA</button>
+        <button class="btn bd" onclick="_sv()">💾 LƯU &amp; KHÓA</button>
+        <button class="btn br" style="grid-column: 1 / -1;" onclick="_clr()">🧹 Xóa Trắng</button>
         <input type="file" id="fi" hidden="" accept=".xlsx, .xls" onchange="_imp(event)">
     </div>
 </div>
 
 <div id="em">
     <div class="mc">
-        <h3>Cập nhật dữ liệu</h3>
+        <h3>🛠️ Cập nhật dữ liệu</h3>
         <input type="text" id="ec" placeholder="Mã Code">
         <input type="text" id="el" placeholder="Link SOP">
         <input type="text" id="emdl" placeholder="Model">
         <input type="text" id="es" placeholder="Mã SAP">
         <input type="text" id="ed" placeholder="Mô tả">
-        <div style="display: flex; gap: 10px; margin-top: 15px;">
-            <button class="btn bg" style="flex:1; padding:15px" onclick="_conf()">LƯU</button>
-            <button class="btn br" style="flex:1; padding:15px" onclick="_cls()">HỦY</button>
+        <div style="display: flex; gap: 15px; margin-top: 25px;">
+            <button class="btn bg" style="flex:1" onclick="_conf()">LƯU</button>
+            <button class="btn br" style="flex:1" onclick="_cls()">HỦY</button>
         </div>
     </div>
 </div>
 
-<script id="embeddedData" type="application/json">[{"code":"BN96-24554L","link":"","model":"SE450-100","sap":"4010221147B","desc":"ASSY STAND P-COVER NECK;49G95NA,ALDC12,"},{"code":"BN96-24554N","link":"","model":"SE450-100","sap":"4010221147E","desc":"ASSY STAND P-COVER BOTTOM;22T45F,ABS+PET"},{"code":"BN96-39647D","link":"","model":"SE450-100","sap":"4010221173B","desc":"ASSY STAND P-COVER BODY;19SE450,ABS+PET,"},{"code":"BN96-43194E","link":"","model":"ST40-130","sap":"4010221108B","desc":"ASSY STAND P-COVER BODY;24ST40,ABS+PET,B"},{"code":"BN96-43194D","link":"","model":"SE650-130","sap":"4010221167B","desc":"ASSY STAND P-COVER BODY;27SE650,ABS+PET,"},{"code":"BN96-51947A","link":"","model":"32TU87F","sap":"4010221068B","desc":"ASSY STAND P-COVER NECK;32TU87F,ABS+GF15"},{"code":"BN96-51948A","link":"","model":"32TU87F","sap":"4010221069B","desc":"ASSY STAND P-COVER TOP;32TU87F,CR-SPCC,N"},{"code":"BN96-52531C","link":"","model":"32S70A","sap":"4010221185I","desc":"ASSY STAND P-COVER TOP;49G95T,ABS,BK0007"},{"code":"BN83-21799A","link":"","model":"32S70A","sap":"4010221185O","desc":"DP-ASSY STAND P-COVER NECK;BN96-52531C"},{"code":"BN96-52531E","link":"","model":"32M51A","sap":"4010221185N","desc":"ASSY STAND P-COVER NECK;32M51A,ABS,WHITE"},{"code":"BN96-53717A","link":"","model":"43M70A","sap":"4010221380C","desc":"ASSY STAND P-COVER NECK;43M70A,PP+GF40%,"},{"code":"BN96-53717E","link":"","model":"43M70D","sap":"4010221638B","desc":"ASSY STAND P-COVER NECK;43M70D,PP+GF40%,"},{"code":"BN96-53717F","link":"","model":"43M70D","sap":"4010221638D","desc":"ASSY STAND P-COVER NECK;43M70D,ABS,WT012"},{"code":"BN96-53717B","link":"","model":"43M70A","sap":"4010221380D","desc":"ASSY STAND P-COVER NECK;43M70A,PP+GF40%,"},{"code":"BN96-53717C","link":"","model":"43M70B","sap":"4010221576B","desc":"ASSY STAND P-COVER NECK;43M70B,ABS,WT012"},{"code":"BN96-53717G","link":"","model":"43M70A","sap":"4010221659B","desc":"ASSY STAND P-COVER NECK;43M70A,CR-SPCC,B"},{"code":"BN96-56203A","link":"","model":"43G70NC","sap":"4010121037A","desc":"ASSY STAND P-COVER NECK;43G70NC,PC+ABS,W"},{"code":"BN96-53235A","link":"","model":"34S60A","sap":"4010221228L","desc":"ASSY STAND P-COVER NECK;34S65UA,EGI-SECC"},{"code":"BN96-53235B","link":"","model":"32S60A","sap":"4010221228K","desc":"ASSY STAND P-COVER NECK;32S60A,EGI-SECC,"},{"code":"BN96-53235D","link":"","model":"B800","sap":"4010221228P","desc":"ASSY STAND P-COVER NECK;MONITOR,ALDC,BLA"},{"code":"BN96-53235G","link":"","model":"32S80TB","sap":"4010221228Y","desc":"ASSY STAND P-COVER NECK;32S80TB,AI,BLACK"},{"code":"BN83-17772A","link":"","model":"32S60A-DP","sap":"4010221572B","desc":"DP-ASSY STAND P-COVER NECK;BN96-53235B"},{"code":"BN96-53235C","link":"","model":"27S60A","sap":"4010221228J","desc":"ASSY STAND P-COVER NECK;27S60A,EGI-SECC,"},{"code":"BN96-53235E","link":"","model":"S80PB","sap":"4010221228N","desc":"ASSY STAND P-COVER NECK;27S80PB,ALDC,BLA"},{"code":"BN96-53235F","link":"","model":"27S80TB","sap":"4010221228V","desc":"ASSY STAND P-COVER NECK;27S80TB,AI,BLACK"},{"code":"BN83-17773A","link":"","model":"27S60A-DP","sap":"4010221572C","desc":"DP-ASSY STAND P-COVER NECK;BN96-53235C"},{"code":"BN96-53343A","link":"","model":"24S60A","sap":"4010221228I","desc":"ASSY STAND P-COVER NECK;24S60A,EGI-SECC,"},{"code":"BN83-17774A","link":"","model":"24S60A-DP","sap":"4010221572A","desc":"DP-ASSY STAND P-COVER NECK;BN96-53343A"},{"code":"BN96-53343B","link":"","model":"24S60A","sap":"4010221228W","desc":"ASSY STAND P-COVER NECK;24S60A,PP,BK0020"},{"code":"BN96-55375A","link":"","model":"25G40B","sap":"4010221383G","desc":"ASSY STAND P-COVER NECK;25G40B,ABS,BK000"},{"code":"BN83-19655A","link":"","model":"25G40B-DP","sap":"4010221383N","desc":"DP-ASSY STAND P-COVER NECK;BN96-55375A"},{"code":"BN83-19656A","link":"","model":"27G40B-DP","sap":"4010221383O","desc":"DP-ASSY STAND P-COVER NECK;BN96-55375B"},{"code":"BN96-55375B","link":"","model":"27G40B","sap":"4010221383H","desc":"ASSY STAND P-COVER NECK;27G40B,ABS,BK000"},{"code":"BN96-55005A","link":"","model":"32G70B","sap":"4010221382N","desc":"ASSY STAND P-COVER NECK;32G70B,ABS,BK000"},{"code":"BN96-55005B","link":"","model":"27G65B","sap":"4010221382O","desc":"ASSY STAND P-COVER NECK;27G65B,ABS,BK000"},{"code":"BN96-55005C","link":"","model":"G75NB","sap":"4010221382H","desc":"ASSY STAND P-COVER NECK;32G75NB,ABS,BK00"},{"code":"BN96-55005D","link":"","model":"32G65B","sap":"4010221464C","desc":"ASSY STAND P-COVER NECK;32G65B,ABS,BK000"},{"code":"BN96-55005E","link":"","model":"28G70B","sap":"4010221382S","desc":"ASSY STAND P-COVER NECK;28G70B,ABS,BK000"},{"code":"BN96-55380A","link":"","model":"32G85NB","sap":"4010221382G","desc":"ASSY STAND P-COVER NECK;32G85NB,ABS,WHIT"},{"code":"BN96-56965A","link":"","model":"32M80C","sap":"4010221571B","desc":"ASSY STAND P-COVER NECK;32M80C,PC+ABS,WT"},{"code":"BN83-22043A","link":"","model":"-","sap":"4010221571A","desc":"DP-ASSY STAND P-COVER NECK;BN96-56965A"},{"code":"BN96-56965B","link":"","model":"32M80C","sap":"4010221571C","desc":"ASSY STAND P-COVER NECK;32M80C,PC+ABS,RD"},{"code":"BN96-56965C","link":"","model":"32M80C","sap":"4010221571D","desc":"ASSY STAND P-COVER NECK;32M80C,PC+ABS,BL"},{"code":"BN96-56965D","link":"","model":"32M80C","sap":"4010221571E","desc":"ASSY STAND P-COVER NECK;32M80C,PC+ABS,GR"},{"code":"BN96-56022A","link":"","model":"34G85SB","sap":"4010221490D","desc":"ASSY STAND P-COVER NECK;34G85SB,ABS,GY03"},{"code":"BN96-57316A","link":"","model":"49G95SC","sap":"4010221579C","desc":"ASSY STAND P-COVER NECK;49G95SC,ABS,GY03"},{"code":"BN96-57368A","link":"","model":"27M80C","sap":"4010221580C","desc":"ASSY STAND P-COVER NECK;27M80C,PC+ABS,WT"},{"code":"BN96-57368B","link":"","model":"27S90PC","sap":"4010221581D","desc":"ASSY STAND P-COVER NECK;27S90PC,PC+ABS,W"},{"code":"BN96-57368C","link":"","model":"27M80C","sap":"4010221580F","desc":"ASSY STAND P-COVER NECK;27M80C,PC+ABS,BL"},{"code":"BN96-57368D","link":"","model":"27M80C","sap":"4010221580D","desc":"ASSY STAND P-COVER NECK;27M80C,PC+ABS,GR"},{"code":"BN96-57368E","link":"","model":"27M80C","sap":"4010221580E","desc":"ASSY STAND P-COVER NECK;27M80C,PC+ABS,RD"},{"code":"BN96-57349A","link":"","model":"57G95NC","sap":"4010221578B","desc":"ASSY STAND P-COVER NECK;57G95NC,ALDC12,B"},{"code":"BN96-57524A","link":"","model":"49G93SC","sap":"4010221582B","desc":"ASSY STAND P-COVER NECK;49G93SC,ABS,GY03"},{"code":"BN96-58157A","link":"","model":"49G95C","sap":"4010221602B","desc":"ASSY STAND P-COVER NECK;49G95C,ALDC12,BL"},{"code":"BN96-58659A","link":"","model":"27G50D","sap":"4010221603B","desc":"ASSY STAND P-COVER NECK;27G50D,ABS,BK000"},{"code":"BN96-58659B","link":"","model":"32G50D","sap":"4010221605B","desc":"ASSY STAND P-COVER NECK;32G50D,ABS,BK000"},{"code":"BN83-24119A","link":"","model":"ST40","sap":"4010221108F","desc":"DP-ASSY STAND P-COVER BODY;BN96-43194G"},{"code":"BN83-14370A","link":"","model":"-","sap":"4190110051A","desc":"DP-COVER-STAND BOTTOM;BN63-09999A"},{"code":"BN83-20168A","link":"","model":"-","sap":"4190110050A","desc":"DP-COVER-STAND TOP;BN63-09998A"},{"code":"BN96-58969A","link":"","model":"27G60SD","sap":"4010221615C","desc":"ASSY STAND P-COVER NECK;27G60SD,ABS,GY03"},{"code":"BN96-58969B","link":"","model":"32G80SD","sap":"4010221615D","desc":"ASSY STAND P-COVER NECK;32G80SD,ABS,GY03"},{"code":"BN96-59011A","link":"","model":"27S60D","sap":"4010221616C","desc":"ASSY STAND P-COVER NECK;27S60D,ABS,BK000"},{"code":"BN96-59011B","link":"","model":"32S60D","sap":"4010221624C","desc":"ASSY STAND P-COVER NECK;32S60D,ABS,BK000"},{"code":"BN96-59011C","link":"","model":"24S60D","sap":"4010221620B","desc":"ASSY STAND P-COVER NECK;24S60D,ABS,BK000"},{"code":"BN96-59011D","link":"","model":"27S60D","sap":"4010221624G","desc":"ASSY STAND P-COVER NECK;27S60D,ABS,BK000"},{"code":"BN96-59011E","link":"","model":"32S60D","sap":"4010221624E","desc":"ASSY STAND P-COVER NECK;32S60D,ABS,BK000"},{"code":"BN96-59250A","link":"","model":"27S70D","sap":"4010221627E","desc":"ASSY STAND P-COVER NECK;27S70D,ABS,BK000"},{"code":"BN96-59250B","link":"","model":"32S70D","sap":"4010221627G","desc":"ASSY STAND P-COVER NECK;32S70D,ABS,BK000"},{"code":"BN96-59250D","link":"","model":"32S71D","sap":"4010221627H","desc":"ASSY STAND P-COVER NECK;32S70D,ABS,WT014"},{"code":"BN96-60232A","link":"","model":"27S40GD","sap":"4010221644D","desc":"ASSY STAND P-COVER NECK;27S40GD,PP+GF35%"},{"code":"BN96-60232B","link":"","model":"22S40GD","sap":"4010221644F","desc":"ASSY STAND P-COVER NECK;S40GD,PP+GF35%+P"},{"code":"BN96-60232C","link":"","model":"24S40GD","sap":"4010221644E","desc":"ASSY STAND P-COVER NECK;S40GD,PP+GF35%+P"},{"code":"BN96-60677A","link":"","model":"37S80D","sap":"4010221651B","desc":"ASSY STAND P-COVER NECK;37S80D,ABS,BK000"},{"code":"BN96-60677B","link":"","model":"37S80UD","sap":"4010221651D","desc":"ASSY STAND P-COVER NECK;37S80UD,INDIA"},{"code":"BN96-60820A","link":"","model":"27G90XF","sap":"4010221650B","desc":"ASSY STAND P-COVER NECK;27G90XF,PC+ABS,W"},{"code":"BN96-53235J","link":"","model":"32S60A","sap":"4010221662G","desc":"ASSY STAND P-COVER NECK;32S80PB,AI,Natur"},{"code":"BN96-60232D","link":"","model":"22S40GD","sap":"4010221644L","desc":"ASSY STAND P-COVER NECK;22S40GD,HIPS,BK0"},{"code":"BN96-60232E","link":"","model":"24S40GD","sap":"4010221644K","desc":"ASSY STAND P-COVER NECK;24S40GD,HIPS,BK0"},{"code":"BN96-60232F","link":"","model":"27S40GD","sap":"4010221644J","desc":"ASSY STAND P-COVER NECK;27S40GD,HIPS,BK0"},{"code":"BN96-53235H","link":"","model":"27S80PB","sap":"4010221662F","desc":"ASSY STAND P-COVER NECK;27S80PB,AI,Natur"},{"code":"BN96-59011F","link":"","model":"24S60D","sap":"4010221624H","desc":"ASSY STAND P-COVER NECK;24S60D,ABS,BK000"},{"code":"BN96-56965E","link":"","model":"32M80B","sap":"4010221658B","desc":"ASSY STAND P-COVER NECK;32M80F,PC+ABS,WT"},{"code":"BN96-58157C","link":"","model":"49G95C","sap":"4010221602F","desc":"ASSY STAND P-COVER NECK;49S95UF,ABS,BK00"},{"code":"BN96-52531G","link":"","model":"32M70F","sap":"4010221185P","desc":"ASSY STAND P-COVER NECK;32M70F,ABS,BLACK"},{"code":"BN96-52531H","link":"","model":"32M71F","sap":"4010221185Q","desc":"ASSY STAND P-COVER NECK;32M71F,ABS,WHITE"},{"code":"BN96-53717H","link":"","model":"43M70F","sap":"4010221638E","desc":"ASSY STAND P-COVER NECK;43M70F,ABS+PET,B"},{"code":"BN96-53717J","link":"","model":"43M71F","sap":"4010221638F","desc":"ASSY STAND P-COVER NECK;43M71F,ABS,WT012"},{"code":"BN96-56965F","link":"","model":"32M80F","sap":"4010221658C","desc":"ASSY STAND P-COVER NECK;32M80F,PC+ABS,WT"},{"code":"BN96-58157B","link":"","model":"49G95C","sap":"4010221602D","desc":"ASSY STAND P-COVER NECK;G95C,ABS,BK0008,"},{"code":"BN96-62495A","link":"","model":"37G75F","sap":"4010221660B","desc":"ASSY STAND P-COVER NECK;37G75F,HIPS,BK00"},{"code":"BN96-62498A","link":"","model":"40G75F","sap":"4010221661B","desc":"ASSY STAND P-COVER NECK;40G75F,HIPS,BK00"},{"code":"BN96-62495B","link":"","model":"37G75F","sap":"4010221660D","desc":"ASSY STAND P-COVER NECK;37G75F,HIPS,BK00"},{"code":"BN96-62498B","link":"","model":"40G75F","sap":"4010221661D","desc":"ASSY STAND P-COVER NECK;40G75F,HIPS,BK00"},{"code":"BN96-48369B","link":"","model":"-","sap":"-","desc":"ASSY STAND P-COVER BODY;32UR591C,ABS,WT0127,EUROPE/NETHERLANDS"},{"code":"BN96-44129A","link":"","model":"-","sap":"-","desc":"ASSY STAND P-COVER BODY;49HG90,ABS,GY0318,SILVER SPRAY,EUROPE/NETHERLAND"}]</script>
+<script id="data-script">
+    // --- DỮ LIỆU ---
+    let _D = [{"code":"BN96-24554L","link":"","model":"SE450-100","sap":"4010221147B","desc":"ASSY STAND P-COVER NECK;49G95NA,ALDC12,"},{"code":"BN96-24554N","link":"","model":"SE450-100","sap":"4010221147E","desc":"ASSY STAND P-COVER BOTTOM;22T45F,ABS+PET"},{"code":"BN96-39647D","link":"","model":"SE450-100","sap":"4010221173B","desc":"ASSY STAND P-COVER BODY;19SE450,ABS+PET,"},{"code":"BN96-43194E","link":"","model":"ST40-130","sap":"4010221108B","desc":"ASSY STAND P-COVER BODY;24ST40,ABS+PET,B"},{"code":"BN96-43194D","link":"","model":"SE650-130","sap":"4010221167B","desc":"ASSY STAND P-COVER BODY;27SE650,ABS+PET,"},{"code":"BN96-51947A","link":"","model":"32TU87F","sap":"4010221068B","desc":"ASSY STAND P-COVER NECK;32TU87F,ABS+GF15"},{"code":"BN96-51948A","link":"","model":"32TU87F","sap":"4010221069B","desc":"ASSY STAND P-COVER TOP;32TU87F,CR-SPCC,N"},{"code":"BN96-52531C","link":"","model":"32S70A","sap":"4010221185I","desc":"ASSY STAND P-COVER TOP;49G95T,ABS,BK0007"},{"code":"BN83-21799A","link":"","model":"32S70A","sap":"4010221185O","desc":"DP-ASSY STAND P-COVER NECK;BN96-52531C"},{"code":"BN96-52531E","link":"","model":"32M51A","sap":"4010221185N","desc":"ASSY STAND P-COVER NECK;32M51A,ABS,WHITE"},{"code":"BN96-53717A","link":"","model":"43M70A","sap":"4010221380C","desc":"ASSY STAND P-COVER NECK;43M70A,PP+GF40%,"},{"code":"BN96-53717E","link":"","model":"43M70D","sap":"4010221638B","desc":"ASSY STAND P-COVER NECK;43M70D,PP+GF40%,"},{"code":"BN96-53717F","link":"","model":"43M70D","sap":"4010221638D","desc":"ASSY STAND P-COVER NECK;43M70D,ABS,WT012"},{"code":"BN96-53717B","link":"","model":"43M70A","sap":"4010221380D","desc":"ASSY STAND P-COVER NECK;43M70A,PP+GF40%,"},{"code":"BN96-53717C","link":"","model":"43M70B","sap":"4010221576B","desc":"ASSY STAND P-COVER NECK;43M70B,ABS,WT012"},{"code":"BN96-53717G","link":"","model":"43M70A","sap":"4010221659B","desc":"ASSY STAND P-COVER NECK;43M70A,CR-SPCC,B"},{"code":"BN96-56203A","link":"","model":"43G70NC","sap":"4010121037A","desc":"ASSY STAND P-COVER NECK;43G70NC,PC+ABS,W"},{"code":"BN96-53235A","link":"","model":"34S60A","sap":"4010221228L","desc":"ASSY STAND P-COVER NECK;34S65UA,EGI-SECC"},{"code":"BN96-53235B","link":"","model":"32S60A","sap":"4010221228K","desc":"ASSY STAND P-COVER NECK;32S60A,EGI-SECC,"},{"code":"BN96-53235D","link":"","model":"B800","sap":"4010221228P","desc":"ASSY STAND P-COVER NECK;MONITOR,ALDC,BLA"},{"code":"BN96-53235G","link":"","model":"32S80TB","sap":"4010221228Y","desc":"ASSY STAND P-COVER NECK;32S80TB,AI,BLACK"},{"code":"BN83-17772A","link":"","model":"32S60A-DP","sap":"4010221572B","desc":"DP-ASSY STAND P-COVER NECK;BN96-53235B"},{"code":"BN96-53235C","link":"","model":"27S60A","sap":"4010221228J","desc":"ASSY STAND P-COVER NECK;27S60A,EGI-SECC,"},{"code":"BN96-53235E","link":"","model":"S80PB","sap":"4010221228N","desc":"ASSY STAND P-COVER NECK;27S80PB,ALDC,BLA"},{"code":"BN96-53235F","link":"","model":"27S80TB","sap":"4010221228V","desc":"ASSY STAND P-COVER NECK;27S80TB,AI,BLACK"},{"code":"BN83-17773A","link":"","model":"27S60A-DP","sap":"4010221572C","desc":"DP-ASSY STAND P-COVER NECK;BN96-53235C"},{"code":"BN96-53343A","link":"","model":"24S60A","sap":"4010221228I","desc":"ASSY STAND P-COVER NECK;24S60A,EGI-SECC,"},{"code":"BN83-17774A","link":"","model":"24S60A-DP","sap":"4010221572A","desc":"DP-ASSY STAND P-COVER NECK;BN96-53343A"},{"code":"BN96-53343B","link":"","model":"24S60A","sap":"4010221228W","desc":"ASSY STAND P-COVER NECK;24S60A,PP,BK0020"},{"code":"BN96-55375A","link":"","model":"25G40B","sap":"4010221383G","desc":"ASSY STAND P-COVER NECK;25G40B,ABS,BK000"},{"code":"BN83-19655A","link":"","model":"25G40B-DP","sap":"4010221383N","desc":"DP-ASSY STAND P-COVER NECK;BN96-55375A"},{"code":"BN83-19656A","link":"","model":"27G40B-DP","sap":"4010221383O","desc":"DP-ASSY STAND P-COVER NECK;BN96-55375B"},{"code":"BN96-55375B","link":"","model":"27G40B","sap":"4010221383H","desc":"ASSY STAND P-COVER NECK;27G40B,ABS,BK000"},{"code":"BN96-55005A","link":"","model":"32G70B","sap":"4010221382N","desc":"ASSY STAND P-COVER NECK;32G70B,ABS,BK000"},{"code":"BN96-55005B","link":"","model":"27G65B","sap":"4010221382O","desc":"ASSY STAND P-COVER NECK;27G65B,ABS,BK000"},{"code":"BN96-55005C","link":"","model":"G75NB","sap":"4010221382H","desc":"ASSY STAND P-COVER NECK;32G75NB,ABS,BK00"},{"code":"BN96-55005D","link":"","model":"32G65B","sap":"4010221464C","desc":"ASSY STAND P-COVER NECK;32G65B,ABS,BK000"},{"code":"BN96-55005E","link":"","model":"28G70B","sap":"4010221382S","desc":"ASSY STAND P-COVER NECK;28G70B,ABS,BK000"},{"code":"BN96-55380A","link":"","model":"32G85NB","sap":"4010221382G","desc":"ASSY STAND P-COVER NECK;32G85NB,ABS,WHIT"},{"code":"BN96-56965A","link":"","model":"32M80C","sap":"4010221571B","desc":"ASSY STAND P-COVER NECK;32M80C,PC+ABS,WT"},{"code":"BN83-22043A","link":"","model":"-","sap":"4010221571A","desc":"DP-ASSY STAND P-COVER NECK;BN96-56965A"},{"code":"BN96-56965B","link":"","model":"32M80C","sap":"4010221571C","desc":"ASSY STAND P-COVER NECK;32M80C,PC+ABS,RD"},{"code":"BN96-56965C","link":"","model":"32M80C","sap":"4010221571D","desc":"ASSY STAND P-COVER NECK;32M80C,PC+ABS,BL"},{"code":"BN96-56965D","link":"","model":"32M80C","sap":"4010221571E","desc":"ASSY STAND P-COVER NECK;32M80C,PC+ABS,GR"},{"code":"BN96-56022A","link":"","model":"34G85SB","sap":"4010221490D","desc":"ASSY STAND P-COVER NECK;34G85SB,ABS,GY03"},{"code":"BN96-57316A","link":"","model":"49G95SC","sap":"4010221579C","desc":"ASSY STAND P-COVER NECK;49G95SC,ABS,GY03"},{"code":"BN96-57368A","link":"","model":"27M80C","sap":"4010221580C","desc":"ASSY STAND P-COVER NECK;27M80C,PC+ABS,WT"},{"code":"BN96-57368B","link":"","model":"27S90PC","sap":"4010221581D","desc":"ASSY STAND P-COVER NECK;27S90PC,PC+ABS,W"},{"code":"BN96-57368C","link":"","model":"27M80C","sap":"4010221580F","desc":"ASSY STAND P-COVER NECK;27M80C,PC+ABS,BL"},{"code":"BN96-57368D","link":"","model":"27M80C","sap":"4010221580D","desc":"ASSY STAND P-COVER NECK;27M80C,PC+ABS,GR"},{"code":"BN96-57368E","link":"","model":"27M80C","sap":"4010221580E","desc":"ASSY STAND P-COVER NECK;27M80C,PC+ABS,RD"},{"code":"BN96-57349A","link":"","model":"57G95NC","sap":"4010221578B","desc":"ASSY STAND P-COVER NECK;57G95NC,ALDC12,B"},{"code":"BN96-57524A","link":"","model":"49G93SC","sap":"4010221582B","desc":"ASSY STAND P-COVER NECK;49G93SC,ABS,GY03"},{"code":"BN96-58157A","link":"","model":"49G95C","sap":"4010221602B","desc":"ASSY STAND P-COVER NECK;49G95C,ALDC12,BL"},{"code":"BN96-58659A","link":"","model":"27G50D","sap":"4010221603B","desc":"ASSY STAND P-COVER NECK;27G50D,ABS,BK000"},{"code":"BN96-58659B","link":"","model":"32G50D","sap":"4010221605B","desc":"ASSY STAND P-COVER NECK;32G50D,ABS,BK000"},{"code":"BN83-24119A","link":"","model":"ST40","sap":"4010221108F","desc":"DP-ASSY STAND P-COVER BODY;BN96-43194G"},{"code":"BN83-14370A","link":"","model":"-","sap":"4190110051A","desc":"DP-COVER-STAND BOTTOM;BN63-09999A"},{"code":"BN83-20168A","link":"","model":"-","sap":"4190110050A","desc":"DP-COVER-STAND TOP;BN63-09998A"},{"code":"BN96-58969A","link":"","model":"27G60SD","sap":"4010221615C","desc":"ASSY STAND P-COVER NECK;27G60SD,ABS,GY03"},{"code":"BN96-58969B","link":"","model":"32G80SD","sap":"4010221615D","desc":"ASSY STAND P-COVER NECK;32G80SD,ABS,GY03"},{"code":"BN96-59011A","link":"","model":"27S60D","sap":"4010221616C","desc":"ASSY STAND P-COVER NECK;27S60D,ABS,BK000"},{"code":"BN96-59011B","link":"","model":"32S60D","sap":"4010221624C","desc":"ASSY STAND P-COVER NECK;32S60D,ABS,BK000"},{"code":"BN96-59011C","link":"","model":"24S60D","sap":"4010221620B","desc":"ASSY STAND P-COVER NECK;24S60D,ABS,BK000"},{"code":"BN96-59011D","link":"","model":"27S60D","sap":"4010221624G","desc":"ASSY STAND P-COVER NECK;27S60D,ABS,BK000"},{"code":"BN96-59011E","link":"","model":"32S60D","sap":"4010221624E","desc":"ASSY STAND P-COVER NECK;32S60D,ABS,BK000"},{"code":"BN96-59250A","link":"","model":"27S70D","sap":"4010221627E","desc":"ASSY STAND P-COVER NECK;27S70D,ABS,BK000"},{"code":"BN96-59250B","link":"","model":"32S70D","sap":"4010221627G","desc":"ASSY STAND P-COVER NECK;32S70D,ABS,BK000"},{"code":"BN96-59250D","link":"","model":"32S71D","sap":"4010221627H","desc":"ASSY STAND P-COVER NECK;32S70D,ABS,WT014"},{"code":"BN96-60232A","link":"","model":"27S40GD","sap":"4010221644D","desc":"ASSY STAND P-COVER NECK;27S40GD,PP+GF35%"},{"code":"BN96-60232B","link":"","model":"22S40GD","sap":"4010221644F","desc":"ASSY STAND P-COVER NECK;S40GD,PP+GF35%+P"},{"code":"BN96-60232C","link":"","model":"24S40GD","sap":"4010221644E","desc":"ASSY STAND P-COVER NECK;S40GD,PP+GF35%+P"},{"code":"BN96-60677A","link":"","model":"37S80D","sap":"4010221651B","desc":"ASSY STAND P-COVER NECK;37S80D,ABS,BK000"},{"code":"BN96-60677B","link":"","model":"37S80UD","sap":"4010221651D","desc":"ASSY STAND P-COVER NECK;37S80UD,INDIA"},{"code":"BN96-60820A","link":"","model":"27G90XF","sap":"4010221650B","desc":"ASSY STAND P-COVER NECK;27G90XF,PC+ABS,W"},{"code":"BN96-53235J","link":"","model":"32S60A","sap":"4010221662G","desc":"ASSY STAND P-COVER NECK;32S80PB,AI,Natur"},{"code":"BN96-60232D","link":"","model":"22S40GD","sap":"4010221644L","desc":"ASSY STAND P-COVER NECK;22S40GD,HIPS,BK0"},{"code":"BN96-60232E","link":"","model":"24S40GD","sap":"4010221644K","desc":"ASSY STAND P-COVER NECK;24S40GD,HIPS,BK0"},{"code":"BN96-60232F","link":"","model":"27S40GD","sap":"4010221644J","desc":"ASSY STAND P-COVER NECK;27S40GD,HIPS,BK0"},{"code":"BN96-53235H","link":"","model":"27S80PB","sap":"4010221662F","desc":"ASSY STAND P-COVER NECK;27S80PB,AI,Natur"},{"code":"BN96-59011F","link":"","model":"24S60D","sap":"4010221624H","desc":"ASSY STAND P-COVER NECK;24S60D,ABS,BK000"},{"code":"BN96-56965E","link":"","model":"32M80B","sap":"4010221658B","desc":"ASSY STAND P-COVER NECK;32M80F,PC+ABS,WT"},{"code":"BN96-58157C","link":"","model":"49G95C","sap":"4010221602F","desc":"ASSY STAND P-COVER NECK;49S95UF,ABS,BK00"},{"code":"BN96-52531G","link":"","model":"32M70F","sap":"4010221185P","desc":"ASSY STAND P-COVER NECK;32M70F,ABS,BLACK"},{"code":"BN96-52531H","link":"","model":"32M71F","sap":"4010221185Q","desc":"ASSY STAND P-COVER NECK;32M71F,ABS,WHITE"},{"code":"BN96-53717H","link":"","model":"43M70F","sap":"4010221638E","desc":"ASSY STAND P-COVER NECK;43M70F,ABS+PET,B"},{"code":"BN96-53717J","link":"","model":"43M71F","sap":"4010221638F","desc":"ASSY STAND P-COVER NECK;43M71F,ABS,WT012"},{"code":"BN96-56965F","link":"","model":"32M80F","sap":"4010221658C","desc":"ASSY STAND P-COVER NECK;32M80F,PC+ABS,WT"},{"code":"BN96-58157B","link":"","model":"49G95C","sap":"4010221602D","desc":"ASSY STAND P-COVER NECK;G95C,ABS,BK0008,"},{"code":"BN96-62495A","link":"","model":"37G75F","sap":"4010221660B","desc":"ASSY STAND P-COVER NECK;37G75F,HIPS,BK00"},{"code":"BN96-62498A","link":"","model":"40G75F","sap":"4010221661B","desc":"ASSY STAND P-COVER NECK;40G75F,HIPS,BK00"},{"code":"BN96-62495B","link":"","model":"37G75F","sap":"4010221660D","desc":"ASSY STAND P-COVER NECK;37G75F,HIPS,BK00"},{"code":"BN96-62498B","link":"","model":"40G75F","sap":"4010221661D","desc":"ASSY STAND P-COVER NECK;40G75F,HIPS,BK00"},{"code":"BN96-48369B","link":"","model":"-","sap":"-","desc":"ASSY STAND P-COVER BODY;32UR591C,ABS,WT0127,EUROPE/NETHERLANDS"},{"code":"BN96-44129A","link":"","model":"-","sap":"-","desc":"ASSY STAND P-COVER BODY;49HG90,ABS,GY0318,SILVER SPRAY,EUROPE/NETHERLAND"}]; 
+    
+    // Mật khẩu đã được giấu (Base64 của chuỗi đảo ngược)
+    const _VK = "Mzg5MTEx"; 
 
-<script>
-    // Lấy dữ liệu từ vùng nhúng nếu có, nếu không mới lấy LocalStorage
-    const embeddedElem = document.getElementById('embeddedData');
-    let _D = JSON.parse(embeddedElem.textContent);
-    if(_D.length === 0) {
-        _D = JSON.parse(localStorage.getItem('ipqc_v8')) || [];
-    }
-
-    let _idx = null;
-    const _PW = "111983";
+    function _getV() { return atob(_VK).split("").reverse().join(""); }
 
     function _tgl() {
         if (document.body.classList.contains('view-mode')) {
-            let p = prompt("Mật mã:");
-            if (p === _PW) {
+            let p = prompt("Nhập mã truy cập:");
+            if (p === _getV()) {
                 document.body.className = "edit-mode";
                 document.getElementById('mi').innerText = "🛠️";
                 _ren();
-            } else { alert("Sai mật mã!"); }
+            } else if(p !== null) { alert("Mật mã không đúng!"); }
         } else { _lck(); }
     }
 
@@ -482,38 +769,39 @@
         data.forEach((item, i) => {
             const card = document.createElement('div');
             card.className = 'dc';
-            let h = item.link ? `<a href="${item.link}" target="_blank" class="cl">${item.code} 🔗</a>` : `<span class="cn">${item.code}</span>`;
-            card.innerHTML = `${h}<p><b>Model:</b> ${item.model||'-'}</p><p><b>SAP:</b> ${item.sap||'-'}</p><p><i>${item.desc||''}</i></p>
-            <div class="ca">
-                <button class="btn bb" style="padding:5px 10px" onclick="_edt(${i})">Sửa</button>
-                <button class="btn br" style="padding:5px 10px" onclick="_del(${i})">Xóa</button>
-            </div>`;
+            card.innerHTML = `<span class="cn">${item.code}</span>
+                <p class="item-model"><b>Model:</b> ${item.model}</p>
+                <p class="item-sap"><b>SAP:</b> ${item.sap}</p>
+                <p class="item-desc"><i>${item.desc}</i></p>
+                <div class="ca">
+                    <button class="btn bb" onclick="_edt(${i})">Sửa</button>
+                    <button class="btn br" onclick="_del(${i})">Xóa</button>
+                </div>`;
             l.appendChild(card);
         });
-        localStorage.setItem('ipqc_v8', JSON.stringify(_D));
     }
 
-    // HÀM LƯU FILE QUAN TRỌNG: Đóng gói dữ liệu vào HTML
     function _sv() {
-        // Cập nhật dữ liệu vào thẻ script nhúng trước khi lưu
-        embeddedElem.textContent = JSON.stringify(_D);
-        
-        // Tạo bản sao nội dung HTML hiện tại
-        const htmlContent = document.documentElement.outerHTML;
-        const blob = new Blob([htmlContent], { type: 'text/html' });
-        const a = document.createElement('a');
-        a.href = URL.createObjectURL(blob);
-        a.download = 'IPQC_SOP_FullData.html';
-        a.click();
-        alert("Đã đóng gói dữ liệu vào file! Bạn có thể gửi file này sang máy khác.");
+        _lck();
+        setTimeout(() => {
+            const h = document.documentElement.outerHTML;
+            const ds = JSON.stringify(_D);
+            const nh = h.replace(/let _D = \[.*?\];/, `let _D = ${ds};`);
+            const b = new Blob([nh], { type: 'text/html' });
+            const a = document.createElement('a');
+            const now = new Date();
+            a.href = URL.createObjectURL(b);
+            a.download = `IPQC_Data_${now.getDate()}_${now.getHours()}h${now.getMinutes()}.html`;
+            a.click();
+        }, 300);
     }
 
     function _edt(i) { _idx = i; const itm = _D[i]; document.getElementById('ec').value=itm.code; document.getElementById('el').value=itm.link; document.getElementById('emdl').value=itm.model; document.getElementById('es').value=itm.sap; document.getElementById('ed').value=itm.desc; document.getElementById('em').style.display='flex'; }
     function _add() { _idx = -1; document.querySelectorAll('#em input').forEach(i=>i.value=''); document.getElementById('em').style.display='flex'; }
-    function _conf() { const o = { code: document.getElementById('ec').value, link: document.getElementById('el').value, model: document.getElementById('emdl').value, sap: document.getElementById('es').value, desc: document.getElementById('ed').value }; if(_idx===-1) _D.push(o); else _D[_idx]=o; _cls(); _ren(); }
-    function _del(i) { if(confirm("Xóa?")) { _D.splice(i,1); _ren(); } }
+    function _conf() { const o = { code: document.getElementById('ec').value, link: document.getElementById('el').value, model: document.getElementById('emdl').value, sap: document.getElementById('es').value, desc: document.getElementById('ed').value }; if(_idx===-1) _D.unshift(o); else _D[_idx]=o; _cls(); _ren(); }
+    function _del(i) { if(confirm("Xóa mục này?")) { _D.splice(i,1); _ren(); } }
     function _cls() { document.getElementById('em').style.display='none'; }
-    function _clr() { if(confirm("Xóa hết?")) { _D=[]; _ren(); } }
+    function _clr() { if(confirm("Xóa sạch?")) { _D=[]; _ren(); } }
     function _ex() { const ws = XLSX.utils.json_to_sheet(_D); const wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, ws, "Data"); XLSX.writeFile(wb, "IPQC_Export.xlsx"); }
     function _imp(e) { const r = new FileReader(); r.onload = (ev) => { const d = XLSX.utils.sheet_to_json(XLSX.read(new Uint8Array(ev.target.result),{type:'array'}).Sheets[XLSX.read(new Uint8Array(ev.target.result),{type:'array'}).SheetNames[0]]); _D = d.map(v => ({ code: v.code||v.Code||'', link: v.link||v.Link||'', model: v.model||v.Model||'', sap: v.sap||v.SAP||'', desc: v.desc||v.Description||'' })); _ren(); }; r.readAsArrayBuffer(e.target.files[0]); }
 
